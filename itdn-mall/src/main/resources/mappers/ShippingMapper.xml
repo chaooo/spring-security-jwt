@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.itdn.mall.dao.ShippingMapper">
+  <resultMap id="BaseResultMap" type="top.itdn.mall.entity.Shipping">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="user_id" />
+    <result column="receiver_name" jdbcType="VARCHAR" property="receiver_name" />
+    <result column="receiver_phone" jdbcType="VARCHAR" property="receiver_phone" />
+    <result column="receiver_mobile" jdbcType="VARCHAR" property="receiver_mobile" />
+    <result column="receiver_province" jdbcType="VARCHAR" property="receiver_province" />
+    <result column="receiver_city" jdbcType="VARCHAR" property="receiver_city" />
+    <result column="receiver_district" jdbcType="VARCHAR" property="receiver_district" />
+    <result column="receiver_address" jdbcType="VARCHAR" property="receiver_address" />
+    <result column="receiver_zip" jdbcType="VARCHAR" property="receiver_zip" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="create_time" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="update_time" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from shipping
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="top.itdn.mall.entity.Shipping">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into shipping (user_id, receiver_name, receiver_phone, 
+      receiver_mobile, receiver_province, receiver_city, 
+      receiver_district, receiver_address, receiver_zip, 
+      create_time, update_time)
+    values (#{user_id,jdbcType=INTEGER}, #{receiver_name,jdbcType=VARCHAR}, #{receiver_phone,jdbcType=VARCHAR}, 
+      #{receiver_mobile,jdbcType=VARCHAR}, #{receiver_province,jdbcType=VARCHAR}, #{receiver_city,jdbcType=VARCHAR}, 
+      #{receiver_district,jdbcType=VARCHAR}, #{receiver_address,jdbcType=VARCHAR}, #{receiver_zip,jdbcType=VARCHAR}, 
+      #{create_time,jdbcType=TIMESTAMP}, #{update_time,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="top.itdn.mall.entity.Shipping">
+    update shipping
+    set user_id = #{user_id,jdbcType=INTEGER},
+      receiver_name = #{receiver_name,jdbcType=VARCHAR},
+      receiver_phone = #{receiver_phone,jdbcType=VARCHAR},
+      receiver_mobile = #{receiver_mobile,jdbcType=VARCHAR},
+      receiver_province = #{receiver_province,jdbcType=VARCHAR},
+      receiver_city = #{receiver_city,jdbcType=VARCHAR},
+      receiver_district = #{receiver_district,jdbcType=VARCHAR},
+      receiver_address = #{receiver_address,jdbcType=VARCHAR},
+      receiver_zip = #{receiver_zip,jdbcType=VARCHAR},
+      create_time = #{create_time,jdbcType=TIMESTAMP},
+      update_time = #{update_time,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, user_id, receiver_name, receiver_phone, receiver_mobile, receiver_province, 
+    receiver_city, receiver_district, receiver_address, receiver_zip, create_time, update_time
+    from shipping
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, user_id, receiver_name, receiver_phone, receiver_mobile, receiver_province, 
+    receiver_city, receiver_district, receiver_address, receiver_zip, create_time, update_time
+    from shipping
+  </select>
+</mapper>

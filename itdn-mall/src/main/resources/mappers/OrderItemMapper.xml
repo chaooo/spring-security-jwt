@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.itdn.mall.dao.OrderItemMapper">
+  <resultMap id="BaseResultMap" type="top.itdn.mall.entity.OrderItem">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="user_id" />
+    <result column="order_no" jdbcType="BIGINT" property="order_no" />
+    <result column="product_id" jdbcType="INTEGER" property="product_id" />
+    <result column="product_name" jdbcType="VARCHAR" property="product_name" />
+    <result column="product_image" jdbcType="VARCHAR" property="product_image" />
+    <result column="current_unit_price" jdbcType="DECIMAL" property="current_unit_price" />
+    <result column="quantity" jdbcType="INTEGER" property="quantity" />
+    <result column="total_price" jdbcType="DECIMAL" property="total_price" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="create_time" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="update_time" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from order_item
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="top.itdn.mall.entity.OrderItem">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into order_item (user_id, order_no, product_id, 
+      product_name, product_image, current_unit_price, 
+      quantity, total_price, create_time, 
+      update_time)
+    values (#{user_id,jdbcType=INTEGER}, #{order_no,jdbcType=BIGINT}, #{product_id,jdbcType=INTEGER}, 
+      #{product_name,jdbcType=VARCHAR}, #{product_image,jdbcType=VARCHAR}, #{current_unit_price,jdbcType=DECIMAL}, 
+      #{quantity,jdbcType=INTEGER}, #{total_price,jdbcType=DECIMAL}, #{create_time,jdbcType=TIMESTAMP}, 
+      #{update_time,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="top.itdn.mall.entity.OrderItem">
+    update order_item
+    set user_id = #{user_id,jdbcType=INTEGER},
+      order_no = #{order_no,jdbcType=BIGINT},
+      product_id = #{product_id,jdbcType=INTEGER},
+      product_name = #{product_name,jdbcType=VARCHAR},
+      product_image = #{product_image,jdbcType=VARCHAR},
+      current_unit_price = #{current_unit_price,jdbcType=DECIMAL},
+      quantity = #{quantity,jdbcType=INTEGER},
+      total_price = #{total_price,jdbcType=DECIMAL},
+      create_time = #{create_time,jdbcType=TIMESTAMP},
+      update_time = #{update_time,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, user_id, order_no, product_id, product_name, product_image, current_unit_price, 
+    quantity, total_price, create_time, update_time
+    from order_item
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, user_id, order_no, product_id, product_name, product_image, current_unit_price, 
+    quantity, total_price, create_time, update_time
+    from order_item
+  </select>
+</mapper>
