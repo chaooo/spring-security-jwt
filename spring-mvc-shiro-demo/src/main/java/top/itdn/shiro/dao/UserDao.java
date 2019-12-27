@@ -1,9 +1,11 @@
 package top.itdn.shiro.dao;
 
+import org.apache.ibatis.annotations.Mapper;
 import top.itdn.shiro.entity.User;
 
 import java.util.List;
 
+@Mapper
 public interface UserDao {
     int deleteByPrimaryKey(Integer id);
 

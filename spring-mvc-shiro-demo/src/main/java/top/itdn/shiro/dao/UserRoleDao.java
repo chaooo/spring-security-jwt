@@ -1,7 +1,9 @@
 package top.itdn.shiro.dao;
 
+import org.apache.ibatis.annotations.Mapper;
 import top.itdn.shiro.entity.UserRole;
 
+@Mapper
 public interface UserRoleDao {
     int deleteByPrimaryKey(Integer id);
 

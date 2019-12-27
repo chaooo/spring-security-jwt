@@ -24,13 +24,10 @@
 
     <!-- 批量生产DAO接口实现类  ,实现类id为类名首字母小写 -->
     <bean id="mapperScanner" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="basePackage" value="top.itdn.ssm.dao"/>
+        <property name="basePackage" value="top.itdn.shiro.dao"/>
     </bean>
-    <!-- 开启服务层组件扫描 -->
-    <context:component-scan base-package="top.itdn.shiro.service"/>
-
-    <!-- 开启控制器组件扫描 -->
-    <context:component-scan base-package="top.itdn.shiro.controller"/>
+    <!-- 开启组件扫描 -->
+    <context:component-scan base-package="top.itdn.shiro"/>
     <!-- 开启标注形式mvc -->
     <mvc:annotation-driven />
     <!-- 配置视图处理器 -->
@@ -59,19 +56,14 @@
         <property name="filterChainDefinitions">
             <value>
                 <!-- /**=anon 所有的url都可以匿名访问,不能配置在最后一排，不然所有的请求都不会拦截 -->
+                <!-- /**=authc 所有的url都必须通过认证才可以访问 -->
                 <!-- 对静态资源设置匿名访问 -->
                 /images/** = anon
                 /js/** = anon
                 /styles/** = anon
                 /login = anon
                 /error = anon
-                <!-- 请求logout地址，shiro去清除session -->
-                /logout = logout
-                <!-- /**=authc 所有的url都必须通过认证才可以访问 -->
                 /** = authc
-                # some example chain definitions:
-                # /admin/** = authc, roles[admin]
-                # /docs/** = authc, perms[document:read]
             </value>
         </property>
     </bean>
@@ -100,7 +92,7 @@
     <!-- 配置自定义Realm -->
     <bean id="customRealm" class="top.itdn.shiro.utils.CustomRealm">
         <!-- 将凭证匹配器设置到realm中，realm按照凭证匹配器的要求进行散列 -->
-        <property name="credentialsMatcher" ref="credentialsMatcher"></property>
+        <property name="credentialsMatcher" ref="credentialsMatcher"/>
     </bean>
     <!-- 凭证匹配器 -->
     <bean id="credentialsMatcher" class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">

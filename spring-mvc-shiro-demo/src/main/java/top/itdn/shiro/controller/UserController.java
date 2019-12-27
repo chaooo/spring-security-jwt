@@ -17,7 +17,13 @@ import top.itdn.shiro.entity.User;
  */
 @Controller
 public class UserController {
-    @RequestMapping(value = "/login",method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+
+    @RequestMapping(value = "/login")
+    public String loginPage(){
+        return "index";
+    }
+
+    @RequestMapping(value = "/toLogin",method = RequestMethod.POST, produces = "application/json;charset=utf-8")
     @ResponseBody
     public String subLogin(User user){
         Subject subject = SecurityUtils.getSubject();
@@ -33,4 +39,6 @@ public class UserController {
         }
         return "无admin权限";
     }
+
+
 }
