@@ -80,8 +80,10 @@ public class MyMd5Realm  extends AuthorizingRealm {
     }
 
     public static void main(String[] args){
-        Md5Hash md5Hash = new Md5Hash("123456","chaooo");
+        Md5Hash md5Hash = new Md5Hash("admin");
+        System.out.println("21232f297a57a5a743894a0e4a801fc3".length());
         System.out.println(md5Hash);
-        //f51703256a38e6bab3d9410a070c32ea
+        //123456: f51703256a38e6bab3d9410a070c32ea
+        // admin: 21232f297a57a5a743894a0e4a801fc3
     }
 }
