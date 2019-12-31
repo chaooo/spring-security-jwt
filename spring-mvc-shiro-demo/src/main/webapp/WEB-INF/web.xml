@@ -2,11 +2,31 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee"
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
          http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" version="3.1">
-  <display-name>Archetype Created Web Application</display-name>
+  <display-name>SpringMVC Shiro Demo</display-name>
   <welcome-file-list>
-    <welcome-file>index.html</welcome-file>
     <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>
+
+  <!-- shiro过滤器定义 -->
+  <filter>
+    <filter-name>shiroFilter</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    <init-param>
+      <!-- 该值缺省为false,表示生命周期由SpringApplicationContext管理,设置为true则表示由ServletContainer管理 -->
+      <param-name>targetFilterLifecycle</param-name>
+      <param-value>true</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>shiroFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <!-- Spring配置文件 -->
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath:applicationContext.xml</param-value>
+  </context-param>
   <!-- 配置编码过滤器 -->
   <filter>
     <filter-name>CharacterEncodingFilter</filter-name>
@@ -20,7 +40,12 @@
     <filter-name>CharacterEncodingFilter</filter-name>
     <url-pattern>/</url-pattern>
   </filter-mapping>
-  <!-- 配置DispatcherServlet分发请求 -->
+  <!-- Spring监听器 -->
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+
+  <!-- 配置DispatcherServlet(SpringMVC)分发请求 -->
   <servlet>
     <servlet-name>DispatcherServlet</servlet-name>
     <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
@@ -33,38 +58,8 @@
   <servlet-mapping>
     <servlet-name>DispatcherServlet</servlet-name>
     <url-pattern>/</url-pattern>
+    <!-- 在applicationContext.xml需对静态资源进行放行 ：mvc:default-servlet-handler-->
   </servlet-mapping>
-  <listener>
-    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-  </listener>
-  <!-- 在applicationContext.xml对静态资源进行放行 ：mvc:default-servlet-handler-->
-
-  <!-- =========================== Shiro与Spring MVC集成 start =========================== -->
-
-  <!-- The filter-name matches name of a 'shiroFilter' bean inside applicationContext.xml -->
-  <!-- shiro过虑器，DelegatingFilterProxy通过代理模式将springIoc容器中的bean和filter关联起来 -->
-  <filter>
-    <filter-name>shiroFilter</filter-name>
-    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-    <!-- 设置true由servlet容器控制filter的生命周期 -->
-    <init-param>
-      <param-name>targetFilterLifecycle</param-name>
-      <param-value>true</param-value>
-    </init-param>
-    <!-- 设置spring容器filter的bean id，如果不设置则找与filter-name一致的bean-->
-    <init-param>
-      <param-name>targetBeanName</param-name>
-      <param-value>shiroFilter</param-value>
-    </init-param>
-  </filter>
-  <!-- Make sure any request you want accessible to Shiro is filtered. /* catches all -->
-  <!-- requests.  Usually this filter mapping is defined first (before all others) to -->
-  <!-- ensure that Shiro works in subsequent filters in the filter chain:             -->
-  <filter-mapping>
-    <filter-name>shiroFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
-  <!-- =========================== Shiro与Spring MVC集成   end =========================== -->
 
 </web-app>
 

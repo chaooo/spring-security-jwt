@@ -1,113 +1,124 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context" xmlns:mvc="http://www.springframework.org/schema/mvc"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-       http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+	   xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd  
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+	http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+	
+	<!-- 配置数据源 -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+		<property name="url" value="jdbc:mysql://localhost:3306/db_shiro"/>
+		<property name="username" value="root"/>
+		<property name="password" value="qwe123"/>
+	</bean>
 
-    <!-- 配置连接池对象 -->
-    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
-        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql://localhost:3306/shiro_test"/>
-        <property name="username" value="root"/>
-        <property name="password" value="qwe123"/>
-    </bean>
-    <!-- 配置SqlSessionFactoryBean来创建SqlSessionFactory
-            属性dataSource：注入连接池对象
-            属性mapperLocations：指定MyBatis的映射器XML配置文件的位置
-            属性typeAliasesPackage：对应我们的实体类所在的包，配置此项可在Mapper映射器直接使用类名，而非包名.类名
-     -->
-    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="dataSource"/>
-        <property name="mapperLocations" value="classpath:mappers/*.xml"/>
-    </bean>
+	<!-- 配置mybatis的sqlSessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<!-- 自动扫描mappers.xml文件 -->
+		<property name="mapperLocations" value="classpath:mappers/*.xml"/>
+		<!-- mybatis配置文件 -->
+		<!--<property name="configLocation" value="classpath:mybatis-config.xml"></property>-->
+	</bean>
 
-    <!-- 批量生产DAO接口实现类  ,实现类id为类名首字母小写 -->
-    <bean id="mapperScanner" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="basePackage" value="top.itdn.shiro.dao"/>
-    </bean>
-    <!-- 开启组件扫描 -->
-    <context:component-scan base-package="top.itdn.shiro"/>
-    <!-- 开启标注形式mvc -->
-    <mvc:annotation-driven />
-    <!-- 配置视图处理器 -->
-    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <property name="prefix" value="/WEB-INF/"/>
+	<!-- DAO接口所在包名，Spring会自动查找其下的类 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="top.itdn.shiro..dao" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+	</bean>
+
+	<!-- (事务管理)transaction manager, use JtaTransactionManager for global tx -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!-- 自定义Realm -->
+	<bean id="myRealm" class="top.itdn.shiro.realm.MyRealm"/>
+	
+	<!-- 安全管理器 -->
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">  
+  	  <property name="realm" ref="myRealm"/>  
+	</bean>  
+	
+	<!-- Shiro过滤器 -->
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">  
+	    <!-- Shiro的核心安全接口,这个属性是必须的 -->  
+	    <property name="securityManager" ref="securityManager"/>
+	    <!-- 身份认证失败，则跳转到登录页面的配置 -->  
+	    <property name="loginUrl" value="/index.jsp"/>
+	    <!-- 权限认证失败，则跳转到指定页面 -->  
+	    <property name="unauthorizedUrl" value="/unauthor.jsp"/>  
+	    <!-- Shiro连接约束配置,即过滤链的定义 -->  
+	    <property name="filterChainDefinitions">  
+	        <value>
+                /**=anon
+                /login=anon
+				/admin*=authc
+				/student=roles[teacher]
+				/teacher=perms["user:create"]
+	        </value>  
+	    </property>
+	</bean>  
+	
+	<!-- 保证实现了Shiro内部lifecycle函数的bean执行 -->  
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>  
+	
+	<!-- 开启Shiro注解 -->
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor"/>  
+  		<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">  
+  	  <property name="securityManager" ref="securityManager"/>  
+    </bean>  
+  
+	<!-- 配置事务通知属性 -->  
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">  
+        <!-- 定义事务传播属性 -->  
+        <tx:attributes>  
+            <tx:method name="insert*" propagation="REQUIRED" />  
+            <tx:method name="update*" propagation="REQUIRED" />  
+            <tx:method name="edit*" propagation="REQUIRED" />  
+            <tx:method name="save*" propagation="REQUIRED" />  
+            <tx:method name="add*" propagation="REQUIRED" />  
+            <tx:method name="new*" propagation="REQUIRED" />  
+            <tx:method name="set*" propagation="REQUIRED" />  
+            <tx:method name="remove*" propagation="REQUIRED" />  
+            <tx:method name="delete*" propagation="REQUIRED" />  
+            <tx:method name="change*" propagation="REQUIRED" />  
+            <tx:method name="check*" propagation="REQUIRED" />  
+            <tx:method name="get*" propagation="REQUIRED" read-only="true" />  
+            <tx:method name="find*" propagation="REQUIRED" read-only="true" />  
+            <tx:method name="load*" propagation="REQUIRED" read-only="true" />  
+            <tx:method name="*" propagation="REQUIRED" read-only="true" />  
+        </tx:attributes>  
+    </tx:advice>  
+  
+    <!-- 配置事务切面 -->  
+    <aop:config>  
+        <aop:pointcut id="serviceOperation"  
+            expression="execution(* top.itdn.shiro.service.*.*(..))" />
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="serviceOperation" />  
+    </aop:config>
+
+    <!-- Spring MVC -->
+    <!-- 视图解析器 -->
+    <bean id="viewResolver"
+          class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/" />
         <property name="suffix" value=".jsp"/>
     </bean>
+    <!-- 使用注解的包，包括子集 -->
+    <context:component-scan base-package="top.itdn.shiro.controller" />
+    <context:component-scan base-package="top.itdn.shiro.service" />
+    <!-- 开启标注形式mvc -->
+    <mvc:annotation-driven />
     <!-- 对静态资源进行放行 -->
     <mvc:default-servlet-handler/>
-    <!-- 静态资源映射 -->
-    <!--<mvc:resources mapping="/static/**" location="/static/" cache-period="31536000"/>-->
-
-    <!--  =========================== Shiro与Spring IoC容器集成   start =========================== -->
-
-    <!-- id属性值要对应 web.xml中shiro的filter对应的bean -->
-    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
-        <property name="securityManager" ref="securityManager"/>
-        <!-- loginUrl认证提交地址，如果没有认证将会请求此地址进行认证，请求地址将由formAuthenticationFilter进行表单认证 -->
-        <property name="loginUrl" value="/login"/>
-        <!-- 认证成功统一跳转到/home，建议不配置，shiro认证成功会默认跳转到上一个请求路径 -->
-        <!--<property name="successUrl" value="/home"/>-->
-        <!-- 通过unauthorizedUrl指定没有权限操作时跳转页面，这个位置会拦截不到，下面有给出解决方法 -->
-        <!-- <property name="unauthorizedUrl" value="/refuse.jsp"></property> -->
-
-        <!-- 过滤器定义，从上到下执行，一般将/**放在最下面 -->
-        <property name="filterChainDefinitions">
-            <value>
-                <!-- /**=anon 所有的url都可以匿名访问,不能配置在最后一排，不然所有的请求都不会拦截 -->
-                <!-- /**=authc 所有的url都必须通过认证才可以访问 -->
-                <!-- 对静态资源设置匿名访问 -->
-                /images/** = anon
-                /js/** = anon
-                /styles/** = anon
-                /login = anon
-                /error = anon
-                /** = authc
-            </value>
-        </property>
-    </bean>
-    <!-- 解决shiro配置的没有权限访问时，unauthorizedUrl不跳转到指定路径的问题 -->
-    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
-        <property name="exceptionMappings">
-            <props>
-                <prop key="org.apache.shiro.authz.UnauthorizedException">/refuse</prop>
-            </props>
-        </property>
-    </bean>
-    <!-- securityManager安全管理器 -->
-    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
-        <!-- Single realm app.  If you have multiple realms, use the 'realms' property instead. -->
-        <property name="realm" ref="customRealm" />
-        <!-- By default the servlet container sessions will be used.  Uncomment this line
-             to use shiro's native sessions (see the JavaDoc for more): -->
-        <!-- <property name="sessionMode" value="native"/> -->
-    </bean>
-    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
-    <!-- Define the Shiro Realm implementation you want to use to connect to your back-end -->
-    <!--<bean id="idbcRealm" class="org.apache.shiro.realm.jdbc.JdbcRealm">
-        <property name="dataSource" ref="dataSource"/>
-        <property name="permissionsLookupEnabled" value="true"/>
-    </bean>-->
-    <!-- 配置自定义Realm -->
-    <bean id="customRealm" class="top.itdn.shiro.utils.CustomRealm">
-        <!-- 将凭证匹配器设置到realm中，realm按照凭证匹配器的要求进行散列 -->
-        <property name="credentialsMatcher" ref="credentialsMatcher"/>
-    </bean>
-    <!-- 凭证匹配器 -->
-    <bean id="credentialsMatcher" class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
-        <!-- 加密算法 -->
-        <property name="hashAlgorithmName" value="md5"/>
-        <!-- 迭代次数 -->
-        <property name="hashIterations" value="1"/>
-    </bean>
-    <!-- Enable Shiro Annotations for Spring-configured beans.  Only run after -->
-    <!-- the lifecycleBeanProcessor has run: -->
-    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor"/>
-    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
-        <property name="securityManager" ref="securityManager"/>
-    </bean>
-    <!--  ===========================Shiro与Spring IoC容器集成   end =========================== -->
-
-
 </beans>

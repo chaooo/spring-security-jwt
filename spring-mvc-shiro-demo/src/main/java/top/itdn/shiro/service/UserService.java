@@ -1,10 +1,10 @@
-package top.itdn.shiro.dao;
+package top.itdn.shiro.service;
 
 import top.itdn.shiro.entity.User;
 
 import java.util.Set;
 
-public interface UserDao {
+public interface UserService {
 
 	/**
 	 * @param userName
