@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<!-- namespace指定和哪个Mapper映射器接口对应 -->
-<mapper namespace="top.itdn.ssm.dao.AdminDao">
-<!-- 定义SQL语句 -->
-<select id="findByNameAndPassword" resultType="top.itdn.ssm.entity.Admin">
-    select * from admin where `name`=#{name, jdbcType=VARCHAR} and `password`=#{password, jdbcType=VARCHAR}
-</select>
-</mapper>

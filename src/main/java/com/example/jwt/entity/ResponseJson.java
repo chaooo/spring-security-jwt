@@ -1,0 +1,80 @@
+package com.example.jwt.entity;
+
+import lombok.Data;
+import java.io.Serializable;
+
+/**
+ * 全局API返回值
+ *
+ * @author : Charles
+ * @date : 2021/12/2
+ */
+@Data
+public class ResponseJson<T> implements Serializable {
+    /** 状态码 */
+    private int code;
+    /** 提示信息 */
+    private String msg;
+    /** 返回的数据 */
+    private T data;
+
+    private ResponseJson() {}
+
+    private ResponseJson(int code, String msg) {
+        this.code = code;
+        this.msg = msg;
+    }
+
+    private ResponseJson(int code, String msg, T data) {
+        this.code = code;
+        this.msg = msg;
+        this.data = data;
+    }
+
+    public static ResponseJson success() {
+        return new ResponseJson<>(0, "操作成功");
+    }
+
+    public static<T> ResponseJson<T> success(T data) {
+        return new ResponseJson<>(0, "操作成功", data);
+    }
+
+    public static<T> ResponseJson<T> success(String msg, T data) {
+        return new ResponseJson<>(0, msg, data);
+    }
+
+    public static<T> ResponseJson<T> success(int code, String msg, T data) {
+        return new ResponseJson<>(code, msg, data);
+    }
+
+    public static ResponseJson error() {
+        return new ResponseJson<>(-1, "操作失败");
+    }
+
+    public static ResponseJson error(String msg) {
+        return new ResponseJson<>(-1, msg);
+    }
+
+    public static ResponseJson error(int code, String msg) {
+        return new ResponseJson<>(code, msg);
+    }
+
+    public static<T> ResponseJson<T> error(T data) {
+        return new ResponseJson<>(-1, "操作失败", data);
+    }
+
+    public static<T> ResponseJson<T> error(String msg, T data) {
+        return new ResponseJson<>(-1, msg, data);
+    }
+
+    public static<T> ResponseJson<T> error(int code, String msg, T data) {
+        return new ResponseJson<>(code, msg, data);
+    }
+
+    @Override
+    public String toString() {
+        return "ResponseJson{" + "code=" + code + ", msg='" + msg + '\'' + ", data=" + data + '}';
+    }
+
+    private static final long serialVersionUID = 1L;
+}
