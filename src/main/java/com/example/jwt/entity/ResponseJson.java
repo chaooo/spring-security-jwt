@@ -4,26 +4,19 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 全局API返回值
+ * 全局API返回JSON
  *
  * @author : Charles
  * @date : 2021/12/2
  */
 @Data
 public class ResponseJson<T> implements Serializable {
-    /** 状态码 */
+    /** 自定义状态码 */
     private int code;
     /** 提示信息 */
     private String msg;
-    /** 返回的数据 */
+    /** 返回数据 */
     private T data;
-
-    private ResponseJson() {}
-
-    private ResponseJson(int code, String msg) {
-        this.code = code;
-        this.msg = msg;
-    }
 
     private ResponseJson(int code, String msg, T data) {
         this.code = code;
@@ -31,8 +24,8 @@ public class ResponseJson<T> implements Serializable {
         this.data = data;
     }
 
-    public static ResponseJson success() {
-        return new ResponseJson<>(0, "操作成功");
+    public static ResponseJson<Void> success() {
+        return new ResponseJson<>(0, "操作成功", null);
     }
 
     public static<T> ResponseJson<T> success(T data) {
@@ -47,20 +40,16 @@ public class ResponseJson<T> implements Serializable {
         return new ResponseJson<>(code, msg, data);
     }
 
-    public static ResponseJson error() {
-        return new ResponseJson<>(-1, "操作失败");
+    public static ResponseJson<Void> error() {
+        return new ResponseJson<>(-1, "操作失败", null);
     }
 
-    public static ResponseJson error(String msg) {
-        return new ResponseJson<>(-1, msg);
+    public static ResponseJson<Void> error(String msg) {
+        return new ResponseJson<>(-1, msg, null);
     }
 
-    public static ResponseJson error(int code, String msg) {
-        return new ResponseJson<>(code, msg);
-    }
-
-    public static<T> ResponseJson<T> error(T data) {
-        return new ResponseJson<>(-1, "操作失败", data);
+    public static ResponseJson<Void> error(int code, String msg) {
+        return new ResponseJson<>(code, msg, null);
     }
 
     public static<T> ResponseJson<T> error(String msg, T data) {

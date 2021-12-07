@@ -63,7 +63,7 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
                     }
                     // 刷新Token
                     refreshToken(response, claims);
-
+                    // 返回Authentication
                     return new UsernamePasswordAuthenticationToken(user, null, authorities);
                 }
             } catch (ExpiredJwtException e) {

@@ -22,9 +22,10 @@ import java.util.*;
  * 自定义JWT登录过滤器
  *
  * 验证用户名密码正确后，生成一个token，并将token返回给客户端
- * 该类继承自UsernamePasswordAuthenticationFilter，重写了其中的2个方法
- * attemptAuthentication ：接收并解析用户凭证。
- * successfulAuthentication ：用户成功登录后，这个方法会被调用，我们在这个方法里生成token。
+ * 该类继承自UsernamePasswordAuthenticationFilter，重写了其中的3个方法
+ * attemptAuthentication：接收并解析用户凭证。
+ * successfulAuthentication：用户成功登录后被调用，我们在这个方法里生成token。
+ * unsuccessfulAuthentication：认证失败后被调用
  *
  * @author : Charles
  * @date : 2021/12/2
@@ -91,8 +92,8 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
             ResponseJson<String> result = ResponseJson.success(token);
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write(JSON.toJSONString(result));
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            log.error("IOException:", e);
         }
     }
 
