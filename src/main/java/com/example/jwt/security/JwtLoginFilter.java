@@ -23,9 +23,9 @@ import java.util.*;
  *
  * 验证用户名密码正确后，生成一个token，并将token返回给客户端
  * 该类继承自UsernamePasswordAuthenticationFilter，重写了其中的3个方法
- * attemptAuthentication：接收并解析用户凭证。
- * successfulAuthentication：用户成功登录后被调用，我们在这个方法里生成token。
- * unsuccessfulAuthentication：认证失败后被调用
+ *     attemptAuthentication：接收并解析用户凭证。
+ *     successfulAuthentication：用户成功登录后被调用，我们在这个方法里生成token。
+ *     unsuccessfulAuthentication：认证失败后被调用
  *
  * @author : Charles
  * @date : 2021/12/2

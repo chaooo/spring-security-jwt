@@ -14,7 +14,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import javax.annotation.Resource;
 
 /**
- * SpringSecurity配置
+ * SpringSecurity配置类
+ * 通过继承 WebSecurityConfigurerAdapter 实现自定义Security策略
+ * @Configuration：声明当前类是一个配置类
+ * @EnableWebSecurity：开启WebSecurity模式
+ * @EnableGlobalMethodSecurity(securedEnabled=true)：开启注解，支持方法级别的权限控制
  *
  * @author : Charles
  * @date : 2021/12/2
@@ -31,7 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     /**
-     * 放行静态资源
+     * 全局请求忽略规则配置
      */
     @Override
     public void configure(WebSecurity web) {
@@ -40,7 +44,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     /**
-     * HTTP 验证规则
+     * 自定义认证策略：登录的时候会进入
+     */
+    @Override
+    public void configure(AuthenticationManagerBuilder auth) {
+        // 2. 通过实现 AuthenticationProvider 自定义身份认证验证组件
+        auth.authenticationProvider(new AuthenticationProviderImpl(userDetailsService, bCryptPasswordEncoder));
+    }
+
+    /**
+     * 自定义 HTTP 验证规则
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -61,14 +74,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             // 禁用跨站伪造
             .and().csrf().disable();
     }
-
-    /**
-     * 该方法是登录的时候会进入
-     */
-    @Override
-    public void configure(AuthenticationManagerBuilder auth) {
-        // 使用自定义身份验证组件
-        auth.authenticationProvider(new AuthenticationProviderImpl(userDetailsService, bCryptPasswordEncoder));
-    }
-
 }

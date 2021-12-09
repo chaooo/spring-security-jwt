@@ -1,7 +1,5 @@
 package com.example.jwt.security;
 
-import com.alibaba.fastjson.JSON;
-import com.example.jwt.entity.ResponseJson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;

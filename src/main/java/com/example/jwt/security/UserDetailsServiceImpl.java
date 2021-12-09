@@ -26,7 +26,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         SysUser user = sysUserDao.findByUsername(username);
         if(user == null){
-            throw new UsernameNotFoundException("用户不存在，username=" + username);
+            throw new UsernameNotFoundException("用户" + username + "不存在!");
         }
         return new User(user.getUsername(), user.getPassword(), emptyList());
     }
