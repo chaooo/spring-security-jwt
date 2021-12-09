@@ -22,7 +22,7 @@
 <dependency>
     <groupId>mysql</groupId>
     <artifactId>mysql-connector-java</artifactId>
-    <scope>runtime</scope>
+<scope>runtime</scope>
 </dependency>
 <dependency>
     <groupId>org.projectlombok</groupId>
@@ -499,10 +499,10 @@ sql
 ```sql
 DROP TABLE IF EXISTS `sys_user`;
 CREATE TABLE `sys_user` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `username` varchar(255) DEFAULT NULL COMMENT '用户名',
-  `password` varchar(255) DEFAULT NULL COMMENT '密码',
-  PRIMARY KEY (`id`)
+                            `id` bigint NOT NULL AUTO_INCREMENT,
+                            `username` varchar(255) DEFAULT NULL COMMENT '用户名',
+                            `password` varchar(255) DEFAULT NULL COMMENT '密码',
+                            PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='系统用户表';
 ```
 Java代码
@@ -566,7 +566,7 @@ public interface SysUserDao {
 ```
 ```xml
 <insert id="insertSysUser" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
-INSERT INTO sys_user(username, password) VALUES(#{username}, #{password})
+    INSERT INTO sys_user(username, password) VALUES(#{username}, #{password})
 </insert>
 <select id="findByUsername" resultType="com.example.jwt.entity.SysUser">
 SELECT id,username,PASSWORD FROM sys_user WHERE username=#{username}
@@ -576,19 +576,24 @@ SELECT id,username,PASSWORD FROM sys_user WHERE username=#{username}
 
 ### 4. 测试
 注册一个用户：
-![](./src/main/resources/static/1.png)
+
+![](https://oscimg.oschina.net/oscnet/up-370de8ce7710b876dfd137c959fa7eee380.png)
 
 登录，返回Token：
-![](./src/main/resources/static/2.png)
+
+![](https://oscimg.oschina.net/oscnet/up-1fef936e1e165efa73d6b133eba887c9d6d.png)
 
 访问公开接口：
-![](./src/main/resources/static/3.png)
+
+![](https://oscimg.oschina.net/oscnet/up-f342a930a199bcca09e0866b790c3a6a2db.png)
 
 访问需要认证的接口，无权限返回403：
-![](./src/main/resources/static/4.png)
+
+![](https://oscimg.oschina.net/oscnet/up-13ffbcfb34a1c5d879d1e2b2a0c883fb204.png)
 
 访问需要认证的接口，通过有效Token访问：
-![](./src/main/resources/static/5.png)
+
+![](https://oscimg.oschina.net/oscnet/up-c5efb32d07d1bd147f8c3dae689cde5eda6.png)
 
 > 源码地址：[https://github.com/chaooo/spring-security-jwt.git](https://github.com/chaooo/spring-security-jwt.git),
 > 这里我将本文的登录认证逻辑放在github源码tag的V1.0中，防止后续修改后对不上。
