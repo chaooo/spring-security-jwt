@@ -575,17 +575,17 @@ SELECT id,username,PASSWORD FROM sys_user WHERE username=#{username}
 
 ### 4. 测试
 注册一个用户：
-![](src\main\resources\static\1.png)
+![](./src/main/resources/static/1.png)
 
 登录：
-![](src\main\resources\static\2.png)
+![](./src/main/resources/static/2.png)
 
 访问公开接口：
-![](src\main\resources\static\3.png)
+![](./src/main/resources/static/3.png)
 
 访问需要认证的接口，无权限返回403：
-![](src\main\resources\static\4.png)
+![](./src/main/resources/static/4.png)
 
 访问需要认证的接口，通过有效Token访问：
-![](src\main\resources\static\5.png)
+![](./src/main/resources/static/5.png)
 
