@@ -120,6 +120,36 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ```
 
+`BCryptPasswordEncoder` 解析器注入到容器
+```java
+@Configuration
+public class WebConfig {
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
+```
+
+实现 `UserDetailsService` 接口，自定义逻辑
+```java
+@Service
+public class UserDetailsServiceImpl implements UserDetailsService {
+    @Resource
+    private SysUserDao sysUserDao;
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // 数据库中查找用户
+        SysUser user = sysUserDao.findByUsername(username);
+        if(user == null){
+            throw new UsernameNotFoundException("用户" + username + "不存在!");
+        }
+        return new User(user.getUsername(), user.getPassword(), emptyList());
+    }
+}
+```
+
+
 #### 2.2 通过实现 AuthenticationProvider 自定义身份认证验证组件
 ```java
 @Slf4j
@@ -168,35 +198,6 @@ public class AuthenticationProviderImpl implements AuthenticationProvider {
     @Override
     public boolean supports(Class<?> authentication) {
         return authentication.equals(UsernamePasswordAuthenticationToken.class);
-    }
-}
-```
-
-`BCryptPasswordEncoder` 解析器注入到容器
-```java
-@Configuration
-public class WebConfig {
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-}
-```
-
-实现 `UserDetailsService` 接口，自定义逻辑
-```java
-@Service
-public class UserDetailsServiceImpl implements UserDetailsService {
-    @Resource
-    private SysUserDao sysUserDao;
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 数据库中查找用户
-        SysUser user = sysUserDao.findByUsername(username);
-        if(user == null){
-            throw new UsernameNotFoundException("用户" + username + "不存在!");
-        }
-        return new User(user.getUsername(), user.getPassword(), emptyList());
     }
 }
 ```
@@ -589,3 +590,5 @@ SELECT id,username,PASSWORD FROM sys_user WHERE username=#{username}
 访问需要认证的接口，通过有效Token访问：
 ![](./src/main/resources/static/5.png)
 
+> 源码地址：[https://github.com/chaooo/spring-security-jwt.git](https://github.com/chaooo/spring-security-jwt.git),
+> 这里我将本文的登录认证逻辑放在github源码tag的V1.0中，防止后续修改后对不上。
