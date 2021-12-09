@@ -577,7 +577,7 @@ SELECT id,username,PASSWORD FROM sys_user WHERE username=#{username}
 注册一个用户：
 ![](./src/main/resources/static/1.png)
 
-登录：
+登录，返回Token：
 ![](./src/main/resources/static/2.png)
 
 访问公开接口：
