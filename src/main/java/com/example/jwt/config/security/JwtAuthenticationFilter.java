@@ -1,5 +1,6 @@
 package com.example.jwt.config.security;
 
+import com.example.jwt.service.RedisService;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,8 +32,10 @@ import java.util.Date;
 @Slf4j
 public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
+    private final RedisService redisService;
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, RedisService redisService) {
         super(authenticationManager);
+        this.redisService = redisService;
     }
 
     @Override
@@ -48,34 +51,45 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
          */
         String token = request.getHeader("Authorization");
         if (StringUtils.hasLength(token)) {
-            try {
-                Claims claims = Jwts.parser()
-                        // 设置生成token的签名key
-                        .setSigningKey(ConstantKey.SIGNING_KEY)
-                        // 解析token
-                        .parseClaimsJws(token).getBody();
-                String user = claims.getSubject();
+            String cacheToken = String.valueOf(redisService.get(token));
+            if (StringUtils.hasLength(token) && !"null".equals(cacheToken)) {
+                String user = null;
+                try {
+                    Claims claims = Jwts.parser()
+                            // 设置生成token的签名key
+                            .setSigningKey(ConstantKey.SIGNING_KEY)
+                            // 解析token
+                            .parseClaimsJws(cacheToken).getBody();
+                    // 取出用户信息
+                    user = claims.getSubject();
+                    // 重设Redis超时时间
+                    resetRedisExpire(token, claims);
+                } catch (ExpiredJwtException e) {
+                    log.info("Token过期续签，ExpiredJwtException={}", e.getMessage());
+                    Claims claims = e.getClaims();
+                    // 取出用户信息
+                    user = claims.getSubject();
+                    // 刷新Token
+                    refreshToken(token, claims);
+                } catch (UnsupportedJwtException e) {
+                    log.warn("访问[{}]失败，UnsupportedJwtException={}", request.getRequestURI(), e.getMessage());
+                } catch (MalformedJwtException e) {
+                    log.warn("访问[{}]失败，MalformedJwtException={}", request.getRequestURI(), e.getMessage());
+                } catch (SignatureException e) {
+                    log.warn("访问[{}]失败，SignatureException={}", request.getRequestURI(), e.getMessage());
+                } catch (IllegalArgumentException e) {
+                    log.warn("访问[{}]失败，IllegalArgumentException={}", request.getRequestURI(), e.getMessage());
+                }
                 if (user != null) {
+                    // 获取用户权限和角色
                     String[] split = user.split("-")[1].split(",");
                     ArrayList<GrantedAuthority> authorities = new ArrayList<>();
                     for (String s : split) {
                         authorities.add(new GrantedAuthorityImpl(s));
                     }
-                    // 刷新Token
-                    refreshToken(response, claims);
                     // 返回Authentication
                     return new UsernamePasswordAuthenticationToken(user, null, authorities);
                 }
-            } catch (ExpiredJwtException e) {
-                log.warn("访问[{}]失败，ExpiredJwtException={}", request.getRequestURI(), e.getMessage());
-            } catch (UnsupportedJwtException e) {
-                log.warn("访问[{}]失败，UnsupportedJwtException={}", request.getRequestURI(), e.getMessage());
-            } catch (MalformedJwtException e) {
-                log.warn("访问[{}]失败，MalformedJwtException={}", request.getRequestURI(), e.getMessage());
-            } catch (SignatureException e) {
-                log.warn("访问[{}]失败，SignatureException={}", request.getRequestURI(), e.getMessage());
-            } catch (IllegalArgumentException e) {
-                log.warn("访问[{}]失败，IllegalArgumentException={}", request.getRequestURI(), e.getMessage());
             }
         }
         log.warn("访问[{}]失败，需要身份认证", request.getRequestURI());
@@ -83,42 +97,52 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
     }
 
     /**
-     * 刷新Token
-     * 刷新Token的时机：
-     * 1. 当前时间 < token过期时间
-     * 2. 当前时间 > (签发时间 + (token过期时间 - token签发时间)/2)
+     * 重设Redis超时时间
+     * 当前时间 + (`cacheToken`过期时间 - `cacheToken`签发时间)
      */
-    private void refreshToken(HttpServletResponse response, Claims claims) {
+    private void resetRedisExpire(String token, Claims claims) {
         // 当前时间
         long current = System.currentTimeMillis();
         // token签发时间
         long issuedAt = claims.getIssuedAt().getTime();
         // token过期时间
         long expiration = claims.getExpiration().getTime();
-        // (当前时间 < token过期时间) && (当前时间 > (签发时间 + (token过期时间 - token签发时间)/2))
-        if ((current < expiration) && (current > (issuedAt + ((expiration - issuedAt) / 2)))) {
-            /*
-             * 重新生成token
-             */
-            Calendar calendar = Calendar.getInstance();
-            // 设置签发时间
-            calendar.setTime(new Date());
-            Date now = calendar.getTime();
-            // 设置过期时间: 5分钟
-            calendar.add(Calendar.MINUTE, 5);
-            Date time = calendar.getTime();
-            String refreshToken = Jwts.builder()
-                    .setSubject(claims.getSubject())
-                    // 签发时间
-                    .setIssuedAt(now)
-                    // 过期时间
-                    .setExpiration(time)
-                    // 算法与签名(同生成token)：这里算法采用HS512，常量中定义签名key
-                    .signWith(SignatureAlgorithm.HS512, ConstantKey.SIGNING_KEY)
-                    .compact();
-            // 主动刷新token，并返回给前端
-            response.addHeader("refreshToken", refreshToken);
-            log.info("刷新token执行时间: {}", (System.currentTimeMillis() - current) + " 毫秒");
-        }
+        // 当前时间 + (`cacheToken`过期时间 - `cacheToken`签发时间)
+        long expireAt = current + (expiration - issuedAt);
+        // 重设Redis超时时间
+        redisService.expire(token, expireAt);
+    }
+
+    /**
+     * 刷新Token
+     * 刷新Token的时机： 当cacheToken已过期 并且Redis在有效期内
+     * 重新生成Token并覆盖Redis的v值(这时候k、v值不一样了)，然后设置Redis过期时间为：新Token过期时间
+     */
+    private void refreshToken(String token, Claims claims) {
+        // 当前时间
+        long current = System.currentTimeMillis();
+        /*
+         * 重新生成token
+         */
+        Calendar calendar = Calendar.getInstance();
+        // 设置签发时间
+        calendar.setTime(new Date());
+        Date now = calendar.getTime();
+        // 设置过期时间: 5分钟
+        calendar.add(Calendar.MINUTE, 5);
+        Date time = calendar.getTime();
+        String refreshToken = Jwts.builder()
+                .setSubject(claims.getSubject())
+                // 签发时间
+                .setIssuedAt(now)
+                // 过期时间
+                .setExpiration(time)
+                // 算法与签名(同生成token)：这里算法采用HS512，常量中定义签名key
+                .signWith(SignatureAlgorithm.HS512, ConstantKey.SIGNING_KEY)
+                .compact();
+        // 将refreshToken覆盖Redis的v值,并设置超时时间为refreshToken过期时间
+        redisService.set(token, refreshToken, time);
+        // 打印日志
+        log.info("刷新token执行时间: {}", (System.currentTimeMillis() - current) + " 毫秒");
     }
 }

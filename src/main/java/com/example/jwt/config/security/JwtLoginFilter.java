@@ -2,6 +2,7 @@ package com.example.jwt.config.security;
 
 import com.alibaba.fastjson.JSON;
 import com.example.jwt.entity.ResponseJson;
+import com.example.jwt.service.RedisService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
@@ -34,9 +35,10 @@ import java.util.*;
 public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
-
-    public JwtLoginFilter(AuthenticationManager authenticationManager) {
+    private final RedisService redisService;
+    public JwtLoginFilter(AuthenticationManager authenticationManager, RedisService redisService) {
         this.authenticationManager = authenticationManager;
+        this.redisService = redisService;
     }
 
     /**
@@ -82,6 +84,8 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
                     // 自定义算法与签名：这里算法采用HS512，常量中定义签名key
                     .signWith(SignatureAlgorithm.HS512, ConstantKey.SIGNING_KEY)
                     .compact();
+            // 将token存入redis,并设置超时时间为token过期时间
+            redisService.set(token, token, time);
             /*
              * 返回token
              */
