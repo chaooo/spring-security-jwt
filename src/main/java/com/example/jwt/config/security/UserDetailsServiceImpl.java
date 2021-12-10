@@ -1,4 +1,4 @@
-package com.example.jwt.security;
+package com.example.jwt.config.security;
 
 import com.example.jwt.dao.SysUserDao;
 import com.example.jwt.entity.SysUser;

@@ -1,4 +1,4 @@
-package com.example.jwt.security;
+package com.example.jwt.config.security;
 
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
@@ -7,7 +7,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -47,7 +47,7 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
          * 解析token
          */
         String token = request.getHeader("Authorization");
-        if (!ObjectUtils.isEmpty(token)) {
+        if (StringUtils.hasLength(token)) {
             try {
                 Claims claims = Jwts.parser()
                         // 设置生成token的签名key

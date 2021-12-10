@@ -1,4 +1,4 @@
-package com.example.jwt.security;
+package com.example.jwt.config.security;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;

@@ -25,12 +25,12 @@ public class SysUserService {
     private BCryptPasswordEncoder passwordEncoder;
 
     public ResponseJson<SysUser> register(SysUser sysUser) {
-        if (StringUtils.isEmpty(sysUser.getUsername()) || StringUtils.isEmpty(sysUser.getPassword())){
-            return ResponseJson.error("用户名或密码不能为空", null);
+        if (StringUtils.hasLength(sysUser.getUsername()) && StringUtils.hasLength(sysUser.getPassword())) {
+            String encodePassword = passwordEncoder.encode(sysUser.getPassword());
+            sysUser.setPassword(encodePassword);
+            sysUserDao.insertSysUser(sysUser);
+            return ResponseJson.success("注册成功", sysUser);
         }
-        String encodePassword = passwordEncoder.encode(sysUser.getPassword());
-        sysUser.setPassword(encodePassword);
-        sysUserDao.insertSysUser(sysUser);
-        return ResponseJson.success("注册成功", sysUser);
+        return ResponseJson.error("用户名或密码不能为空", null);
     }
 }

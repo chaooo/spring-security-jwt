@@ -1,4 +1,4 @@
-package com.example.jwt.security;
+package com.example.jwt.config.security;
 
 import com.alibaba.fastjson.JSON;
 import com.example.jwt.entity.ResponseJson;
@@ -89,7 +89,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
             // 登录成功后，返回token到header里面
             response.addHeader("Authorization", token);
             // 登录成功后，返回token到body里面
-            ResponseJson<String> result = ResponseJson.success(token);
+            ResponseJson<String> result = ResponseJson.success("登录成功", token);
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write(JSON.toJSONString(result));
         } catch (IOException e) {
