@@ -2,9 +2,6 @@ package com.example.jwt.config.security;
 
 import com.alibaba.fastjson.JSON;
 import com.example.jwt.entity.ResponseJson;
-import com.example.jwt.service.RedisService;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,10 +32,10 @@ import java.util.*;
 public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
-    private final RedisService redisService;
-    public JwtLoginFilter(AuthenticationManager authenticationManager, RedisService redisService) {
+    private final JwtService jwtService;
+    public JwtLoginFilter(AuthenticationManager authenticationManager, JwtService jwtService) {
         this.authenticationManager = authenticationManager;
-        this.redisService = redisService;
+        this.jwtService = jwtService;
     }
 
     /**
@@ -65,37 +62,22 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
             for (GrantedAuthority grantedAuthority : authorities) {
                 roleList.add(grantedAuthority.getAuthority());
             }
-            /*
-             * 生成token
-             */
-            Calendar calendar = Calendar.getInstance();
-            // 设置签发时间
-            calendar.setTime(new Date());
-            Date now = calendar.getTime();
-            // 设置过期时间: 5分钟
-            calendar.add(Calendar.MINUTE, 5);
-            Date time = calendar.getTime();
-            String token = Jwts.builder()
-                    .setSubject(auth.getName() + "-" + roleList)
-                    // 签发时间
-                    .setIssuedAt(now)
-                    // 过期时间
-                    .setExpiration(time)
-                    // 自定义算法与签名：这里算法采用HS512，常量中定义签名key
-                    .signWith(SignatureAlgorithm.HS512, ConstantKey.SIGNING_KEY)
-                    .compact();
-            // 将token存入redis,并设置超时时间为token过期时间
-            redisService.set(token, token, time);
+            // 生成token
+            String token = jwtService.createToken(auth.getName(), roleList);
             /*
              * 返回token
              */
             log.info("用户登录成功，生成token={}", token);
             // 登录成功后，返回token到header里面
             response.addHeader("Authorization", token);
-            // 登录成功后，返回token到body里面
-            ResponseJson<String> result = ResponseJson.success("登录成功", token);
+            // 设置用户信息及token到body里面
+            Map<String, Object> resultMap = new HashMap();
+            resultMap.put("username",auth.getName());
+            resultMap.put("token",token);
+            resultMap.put("roles",roleList);
+            ResponseJson<Map<String, Object>> resultJson = ResponseJson.success("登录成功", resultMap);
             response.setCharacterEncoding("UTF-8");
-            response.getWriter().write(JSON.toJSONString(result));
+            response.getWriter().write(JSON.toJSONString(resultJson));
         } catch (IOException e) {
             log.error("IOException:", e);
         }

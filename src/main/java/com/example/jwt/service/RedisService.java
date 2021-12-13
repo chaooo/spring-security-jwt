@@ -56,14 +56,14 @@ public class RedisService {
         return result;
     }
     /**
-     * 写入缓存 并 加上过期时间
+     * 写入缓存 并 加上过期时间（毫秒）
      */
-    public boolean set(String key, Object value, Date date) {
+    public boolean set(String key, Object value, Long expireTimeMillis) {
         boolean result = false;
         try {
             ValueOperations<Serializable, Object> operations = redisTemplate.opsForValue();
             operations.set(key, value);
-            redisTemplate.expireAt(key, date);
+            redisTemplate.expire(key, expireTimeMillis, TimeUnit.MILLISECONDS);
             result = true;
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,6 +1,5 @@
 package com.example.jwt.config.security;
 
-import com.example.jwt.service.RedisService;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -30,7 +29,7 @@ import javax.annotation.Resource;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Resource
-    private RedisService redisService;
+    private JwtService jwtService;
 
     @Resource
     private UserDetailsService userDetailsService;
@@ -68,9 +67,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and().authorizeRequests().anyRequest().authenticated()
             .and()
             // 自定义JWT登录过滤器
-            .addFilter(new JwtLoginFilter(authenticationManager(), redisService))
+            .addFilter(new JwtLoginFilter(authenticationManager(), jwtService))
             // 自定义JWT认证过滤器
-            .addFilter(new JwtAuthenticationFilter(authenticationManager(), redisService))
+            .addFilter(new JwtAuthenticationFilter(authenticationManager(), jwtService))
             // 自定义认证拦截器，也可以直接使用内置实现类Http403ForbiddenEntryPoint
             .exceptionHandling().authenticationEntryPoint(new AuthenticationEntryPointImpl())
             // 允许跨域

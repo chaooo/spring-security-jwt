@@ -11,4 +11,12 @@ public class ConstantKey {
      * 签名key
      */
     public static final String SIGNING_KEY = "Charles@Jwt!&Secret^#";
+    /**
+     * Token存入header的键名
+     */
+    public static final String TOKEN_NAME = "Authorization";
+    /**
+     * Token过期时间（分钟）
+     */
+    public static final Integer TOKEN_EXPIRE = 5;
 }

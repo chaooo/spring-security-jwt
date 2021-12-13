@@ -4,7 +4,29 @@
     <insert id="insertSysUser" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
         INSERT INTO sys_user(username, password) VALUES(#{username}, #{password})
     </insert>
+    <insert id="insertUserRoleRelation">
+        INSERT INTO sys_role_user(user_id, role_id) VALUES(#{userId}, #{roleId})
+    </insert>
     <select id="findByUsername" resultType="com.example.jwt.entity.SysUser">
         SELECT id,username,PASSWORD FROM sys_user WHERE username=#{username}
+    </select>
+    <select id="getRoleList" resultType="java.lang.String">
+        SELECT r.role_name FROM sys_role r
+                 LEFT JOIN sys_role_user ru ON r.id = ru.role_id
+        WHERE ru.user_id = #{userId}
+    </select>
+    <select id="getRoleIdsByUserId" resultType="java.lang.Long">
+        SELECT DISTINCT ru.role_id FROM sys_role_user ru
+        LEFT JOIN sys_user u ON ru.user_id = u.id
+        WHERE u.username=#{username}
+    </select>
+    <select id="getMenuListByRoleIds" resultType="com.example.jwt.entity.SysMenu">
+        SELECT m.id, m.menu_name AS menuName, m.menu_path AS menuPath, m.menu_type AS menuType, m.menu_parent_id AS parentId
+        FROM sys_menu m
+                 LEFT JOIN sys_role_menu rm ON m.id = rm.menu_id
+        WHERE rm.role_id IN
+        <foreach item="roleId" collection="roleIds" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
     </select>
 </mapper>
