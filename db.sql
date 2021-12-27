@@ -4,9 +4,9 @@ CREATE TABLE `sys_user` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '用户ID',
   `username` VARCHAR(255) UNIQUE NOT NULL COMMENT '用户名',
   `password` VARCHAR(255) NOT NULL COMMENT '密码',
-  `avatar` VARCHAR(255) DEFAULT '' COMMENT '头像',
-  `fullName` VARCHAR(100) NOT NULL COMMENT '姓名',
-  `phone` INT(20) NOT NULL COMMENT '电话',
+  `avatar` VARCHAR(255) DEFAULT 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif' COMMENT '头像',
+  `fullName` VARCHAR(100) DEFAULT NULL COMMENT '姓名',
+  `phone` INT(20) DEFAULT NULL COMMENT '电话',
   `login_flag` CHAR(1) NOT NULL DEFAULT '0' COMMENT '是否阻止登录：0否，其他是',
   `create_time` DATETIME DEFAULT NULL COMMENT '创建时间',
   `update_time` DATETIME DEFAULT NULL COMMENT '更新时间',
@@ -60,16 +60,16 @@ CREATE TABLE `sys_role_menu` (
 INSERT INTO `sys_user`(`id`,`username`,`password`,`create_time`) VALUES (1,'admin','$2a$10$QmDp1600wURZ.Dn2utkfXO4UTM3gdV42qVjMa81o3GMyW.IdfeEWm',NOW());
 INSERT INTO `sys_role`(`id`,`role_name`,`role_desc`,`create_time`) VALUES (1,'admin','管理员',NOW());
 INSERT INTO `sys_menu` (`id`, `title`, `name`, `icon`, `parent_id`, `hidden`, `create_time`)
-VALUES  ('1','系统设置','SysSetting','el-icon-s-tools','0','0',NOW())
-        ('2','菜单管理','SysMenus','el-icon-menu','1','0',NOW())
-        ('3','角色管理','SysRoles','peoples','1','0',NOW())
-        ('4','用户管理','SysUsers','user','1','0',NOW())
-        ('5','系统图标','SysIcons','el-icon-picture','1','0',NOW())
-        ('6','菜单列表','SysMenuList','','2','1',NOW())
-        ('7','菜单编辑','SysMenuEdit','','2','1',NOW())
-        ('8','角色列表','SysRoleList','','3','1',NOW())
-        ('9','角色编辑','SysRoleEdit','','3','1',NOW())
-        ('10','用户列表','SysUserList','','4','1',NOW())
+VALUES  ('1','系统设置','SysSetting','el-icon-s-tools','0','0',NOW()),
+        ('2','菜单管理','SysMenus','el-icon-menu','1','0',NOW()),
+        ('3','角色管理','SysRoles','peoples','1','0',NOW()),
+        ('4','用户管理','SysUsers','user','1','0',NOW()),
+        ('5','系统图标','SysIcons','el-icon-picture','1','0',NOW()),
+        ('6','菜单列表','SysMenuList','','2','1',NOW()),
+        ('7','菜单编辑','SysMenuEdit','','2','1',NOW()),
+        ('8','角色列表','SysRoleList','','3','1',NOW()),
+        ('9','角色编辑','SysRoleEdit','','3','1',NOW()),
+        ('10','用户列表','SysUserList','','4','1',NOW()),
         ('11','用户编辑','SysUserEdit','','4','1',NOW());
 INSERT INTO `sys_role_user`(`user_id`, `role_id`) VALUES (1, 1);
 INSERT INTO `sys_role_menu`(`role_id`, `menu_id`) VALUES (1, 1),(1, 2),(1, 3),(1, 4),(1, 5),(1, 6),(1, 7),(1, 8),(1, 9),(1, 10),(1, 11);
