@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 
 import javax.annotation.Resource;
 
@@ -74,7 +75,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .exceptionHandling().authenticationEntryPoint(new AuthenticationEntryPointImpl())
             // 允许跨域
             .and().cors()
+            // 保证跨域过滤器首先触发
+            .and().addFilterBefore(new GlobalCorsFilter(), ChannelProcessingFilter.class)
             // 禁用跨站伪造
-            .and().csrf().disable();
+            .csrf().disable();
     }
 }

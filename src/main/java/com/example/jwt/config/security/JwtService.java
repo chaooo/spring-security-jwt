@@ -94,9 +94,8 @@ public class JwtService {
     /**
      * 解析Token,取出用户名（Token过期仍取出用户名）
      */
-    public String getUsername(HttpServletRequest request){
+    public String getUsername(String token){
         String username = null;
-        String token = request.getHeader(ConstantKey.TOKEN_NAME);
         if (StringUtils.hasLength(token)) {
             String userinfo = null;
             try {

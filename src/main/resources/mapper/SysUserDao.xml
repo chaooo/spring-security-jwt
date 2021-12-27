@@ -1,32 +1,136 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.jwt.dao.SysUserDao">
-    <insert id="insertSysUser" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
-        INSERT INTO sys_user(username, password) VALUES(#{username}, #{password})
-    </insert>
-    <insert id="insertUserRoleRelation">
-        INSERT INTO sys_role_user(user_id, role_id) VALUES(#{userId}, #{roleId})
-    </insert>
     <select id="findByUsername" resultType="com.example.jwt.entity.SysUser">
-        SELECT id,username,PASSWORD FROM sys_user WHERE username=#{username}
+        SELECT id,username,PASSWORD,avatar, login_flag AS loginFlag, del_flag AS delFlag
+        FROM sys_user WHERE login_flag=0 AND username=#{username}
     </select>
-    <select id="getRoleList" resultType="java.lang.String">
-        SELECT r.role_name FROM sys_role r
-                 LEFT JOIN sys_role_user ru ON r.id = ru.role_id
+    <select id="getRoleListByUserId" resultType="java.lang.String">
+        SELECT DISTINCT r.role_name FROM sys_role r
+            LEFT JOIN sys_role_user ru ON r.id = ru.role_id
         WHERE ru.user_id = #{userId}
     </select>
-    <select id="getRoleIdsByUserId" resultType="java.lang.Long">
+    <select id="getRoleIdsByUserId" resultType="java.lang.String">
+        SELECT DISTINCT r.id FROM sys_role r
+            LEFT JOIN sys_role_user ru ON r.id = ru.role_id
+        WHERE ru.user_id = #{userId}
+    </select>
+    <select id="getRoleIdsByUsername" resultType="java.lang.Integer">
         SELECT DISTINCT ru.role_id FROM sys_role_user ru
         LEFT JOIN sys_user u ON ru.user_id = u.id
         WHERE u.username=#{username}
     </select>
-    <select id="getMenuListByRoleIds" resultType="com.example.jwt.entity.SysMenu">
-        SELECT m.id, m.menu_name AS menuName, m.menu_path AS menuPath, m.menu_type AS menuType, m.menu_parent_id AS parentId
+    <select id="getUserList" resultType="com.example.jwt.entity.SysUser">
+        SELECT u.id, u.username, u.avatar, u.fullName, u.phone, u.create_time AS createTime ,u.update_time AS updateTime, login_flag AS loginFlag, del_flag AS delFlag
+        FROM sys_user u
+        WHERE u.del_flag = 0
+        <if test="username != null and username != ''">
+            AND u.username=#{username}
+        </if>
+        <if test="fullName != null and fullName != ''">
+            AND u.fullName=#{fullName}
+        </if>
+    </select>
+    <select id="getUser" resultType="com.example.jwt.entity.SysUser">
+        SELECT u.id, u.username, u.avatar, u.fullName, u.phone, u.create_time AS createTime ,u.update_time AS updateTime, login_flag AS loginFlag, del_flag AS delFlag
+        FROM sys_user u
+        WHERE u.id = #{id}
+    </select>
+    <insert id="insertSysUser" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
+        INSERT INTO sys_user(username, password, avatar, fullName, phone, create_time)
+        VALUES(#{username}, #{password}, #{avatar}, #{fullName}, #{phone}, NOW())
+    </insert>
+    <update id="updateSysUser">
+        UPDATE sys_user SET username=#{username},
+        <if test="password != null and password != ''">
+            password=#{password},
+        </if>
+        avatar=#{avatar}, fullName=#{fullName}, phone=#{phone}, del_flag=#{delFlag}, update_time=NOW()
+        WHERE id = #{id}
+    </update>
+    <update id="deleteSysUser">
+        UPDATE sys_user SET del_flag=1, update_time=NOW() WHERE id = #{id}
+    </update>
+    <insert id="insertUserRoleRelation">
+        INSERT INTO sys_role_user(user_id, role_id) VALUES(#{userId}, #{roleId})
+    </insert>
+    <delete id="deleteUserRoleRelation">
+        DELETE FROM sys_role_user WHERE user_id = #{userId}
+    </delete>
+    <select id="getRoleList" resultType="com.example.jwt.entity.SysRole">
+        SELECT  r.id, r.role_name AS roleName, r.role_desc AS roleDesc, r.create_time AS createTime, r.update_time AS updateTime, del_flag AS delFlag
+        FROM sys_role r WHERE r.del_flag = 0
+    </select>
+    <select id="getRole" resultType="com.example.jwt.entity.SysRole">
+        SELECT  r.id, r.role_name AS roleName, r.role_desc AS roleDesc, r.create_time AS createTime, r.update_time AS updateTime, del_flag AS delFlag
+        FROM sys_role r WHERE r.id = #{id}
+    </select>
+    <select id="getRoleByRoleName" resultType="com.example.jwt.entity.SysRole">
+        SELECT  r.id, r.role_name AS roleName, r.role_desc AS roleDesc, r.create_time AS createTime, r.update_time AS updateTime, del_flag AS delFlag
+        FROM sys_role r WHERE r.role_name = #{roleName}
+    </select>
+    <insert id="insertRole" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
+        INSERT INTO sys_role(role_name, role_desc, create_time)
+        VALUES (#{roleName}, #{roleDesc}, NOW())
+    </insert>
+    <select id="getMenuIdsByRoleId" resultType="java.lang.String">
+        SELECT DISTINCT menu_id FROM sys_role_menu WHERE role_id = #{roleId}
+    </select>
+    <insert id="insertRoleMenuRelation">
+        INSERT INTO sys_role_menu(role_id, menu_id) VALUES(#{roleId}, #{menuId})
+    </insert>
+    <delete id="deleteRoleMenuRelation">
+        DELETE FROM sys_role_menu WHERE role_id = #{roleId}
+    </delete>
+    <update id="updateRole">
+        UPDATE sys_role SET role_name=#{roleName}, role_desc=#{roleDesc}, del_flag=#{delFlag}, update_time=NOW()
+        WHERE id = #{id}
+    </update>
+    <update id="deleteRole">
+        UPDATE sys_role SET del_flag=1, update_time=NOW() WHERE id = #{id}
+    </update>
+    <select id="getMenusByRoleIds" resultType="com.example.jwt.entity.SysMenu">
+        SELECT m.id, m.title , m.name, m.icon, m.parent_id AS parentId, m.hidden, m.status, m.sort, m.create_time AS createTime, del_flag AS delFlag
         FROM sys_menu m
-                 LEFT JOIN sys_role_menu rm ON m.id = rm.menu_id
-        WHERE rm.role_id IN
+        LEFT JOIN sys_role_menu rm ON m.id = rm.menu_id
+        WHERE m.del_flag = 0 AND m.status = 0 AND rm.role_id IN
         <foreach item="roleId" collection="roleIds" open="(" separator="," close=")">
             #{roleId}
         </foreach>
+        ORDER BY m.sort
     </select>
+    <select id="getMenuList" resultType="com.example.jwt.entity.SysMenu">
+        SELECT m.id, m.title , m.name, m.icon, m.parent_id AS parentId, m.status, m.hidden, m.sort, m.create_time AS createTime, del_flag AS delFlag,
+        (SELECT COUNT(*) FROM sys_menu WHERE parent_id=m.id) AS childCount
+        FROM sys_menu m
+        WHERE m.del_flag = 0
+        <if test="parentId != null or parentId == 0">
+            AND m.parent_id = #{parentId}
+        </if>
+        <if test="status != null or status == 0">
+            AND m.status = #{status}
+        </if>
+        ORDER BY m.sort
+    </select>
+    <select id="getMenu" resultType="com.example.jwt.entity.SysMenu">
+        SELECT m.id, m.title , m.name, m.icon, m.parent_id AS parentId, m.hidden, m.status, m.sort, m.create_time AS createTime, del_flag AS delFlag
+        FROM sys_menu m
+        WHERE m.id = #{id}
+    </select>
+    <select id="getMenuByName" resultType="com.example.jwt.entity.SysMenu">
+        SELECT m.id, m.title , m.name, m.icon, m.parent_id AS parentId, m.hidden, m.status, m.sort, m.create_time AS createTime, del_flag AS delFlag
+        FROM sys_menu m
+        WHERE m.name = #{name}
+    </select>
+    <update id="updateMenu">
+        UPDATE sys_menu SET title=#{title}, name=#{name}, icon=#{icon}, parent_id=#{parentId}, hidden=#{hidden}, status=#{status}, sort=#{sort}, del_flag=#{delFlag}, update_time=NOW()
+        WHERE id = #{id}
+    </update>
+    <insert id="insertMenu" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
+        INSERT INTO sys_menu(title, name, icon, parent_id, hidden, status, sort, create_time)
+        VALUES (#{title}, #{name}, #{icon}, #{parentId}, #{hidden}, #{status}, #{sort}, NOW())
+    </insert>
+    <update id="deleteMenu">
+        UPDATE sys_menu SET del_flag=1, update_time=NOW() WHERE id = #{id}
+    </update>
 </mapper>

@@ -14,7 +14,7 @@ public class ConstantKey {
     /**
      * Token存入header的键名
      */
-    public static final String TOKEN_NAME = "Authorization";
+    public static final String TOKEN_NAME = "X-Token";
     /**
      * Token过期时间（分钟）
      */

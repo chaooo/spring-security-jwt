@@ -31,7 +31,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("用户" + username + "不存在!");
         }
         // 获取用户角色列表
-        List<String> roleList = sysUserDao.getRoleList(user.getId());
+        List<String> roleList = sysUserDao.getRoleListByUserId(user.getId());
         // 设置权限和角色
         ArrayList<GrantedAuthority> authorities = new ArrayList<>();
         for (String role : roleList) {

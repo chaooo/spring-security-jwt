@@ -1,6 +1,7 @@
 package com.example.jwt.entity;
 
 import lombok.Data;
+
 import java.io.Serializable;
 
 /**

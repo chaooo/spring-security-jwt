@@ -4,44 +4,27 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * Description
  *
  * @author : Charles
- * @date : 2021/12/2
+ * @date : 2021/12/17
  */
 @Data
-public class SysUser {
+public class SysRole {
     /**
-     * 用户Id
+     * 角色ID
      */
     private Integer id;
     /**
-     * 用户名
+     * 角色名称
      */
-    private String username;
+    private String roleName;
     /**
-     * 密码
+     * 描述
      */
-    private String password;
-    /**
-     * 头像
-     */
-    private String avatar;
-    /**
-     * 姓名
-     */
-    private String fullName;
-    /**
-     * 电话
-     */
-    private String phone;
-    /**
-     * 是否阻止登录：0否，其他是
-     */
-    private Integer loginFlag;
+    private String roleDesc;
     /**
      * 创建时间
      */
@@ -57,17 +40,9 @@ public class SysUser {
      */
     private Integer delFlag;
     /**
-     * 角色Ids，用","隔开
+     * 角色授权菜单
      */
-    private String roleIds;
-    /**
-     * 角色名称集合
-     */
-    private List<String> roles;
-    /**
-     * 可访问菜单集合
-     */
-    private List<SysMenu> menus;
+    private String menuIds;
 
     private static final long serialVersionUID = 1L;
 }

@@ -1,6 +1,10 @@
 package com.example.jwt.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Description
@@ -13,23 +17,52 @@ public class SysMenu {
     /**
      * Id
      */
-    private Long id;
+    private Integer id;
     /**
      * 菜单名称
      */
-    private String menuName;
+    private String title;
     /**
-     * 菜单路径
+     * 菜单名称
      */
-    private String menuPath;
+    private String name;
     /**
-     * 菜单类型(1:一级菜单，2:子菜单，3:按钮)
+     * 图标
      */
-    private char menuType;
+    private String icon;
+    /**
+     * 子菜单数量
+     */
+    private Integer childCount;
     /**
      * 父级菜单Id
      */
-    private Long parentId;
+    private Integer parentId;
+    /**
+     * 创建时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date createTime;
+    /**
+     * 隐藏状态：0显示，1隐藏
+     */
+    private Integer hidden;
+    /**
+     * 状态：0启用，1停用
+     */
+    private Integer status;
+    /**
+     * 排序
+     */
+    private Integer sort;
+    /**
+     * 删除标记：0未删，其他删除
+     */
+    private Integer delFlag;
+    /**
+     * 排序
+     */
+    private List<SysMenu> subMenus;
 
     private static final long serialVersionUID = 1L;
 }

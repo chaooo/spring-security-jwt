@@ -1,5 +1,7 @@
 package com.example.jwt.config.security;
 
+import com.alibaba.fastjson.JSON;
+import com.example.jwt.entity.ResponseJson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -27,7 +29,10 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
         log.debug("预认证入口被调用。拒绝访问，AuthenticationException={}", exception.getMessage());
         // 没有权限，返回403
-        response.sendError(403, "Access Denied");
+        // response.sendError(403, "Access Denied");
+        ResponseJson<Void> errorJson = ResponseJson.error(-99, "访问失败，需要身份认证", null);
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(JSON.toJSONString(errorJson));
     }
 
 }

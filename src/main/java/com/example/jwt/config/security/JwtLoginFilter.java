@@ -2,6 +2,7 @@ package com.example.jwt.config.security;
 
 import com.alibaba.fastjson.JSON;
 import com.example.jwt.entity.ResponseJson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,6 +15,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -43,8 +45,10 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
      */
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
+//        String username = request.getParameter("username");
+//        String password = request.getParameter("password");
+        String username = this.getBodyParams(request).get(SPRING_SECURITY_FORM_USERNAME_KEY);
+        String password = this.getBodyParams(request).get(SPRING_SECURITY_FORM_PASSWORD_KEY);
         return authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password, new ArrayList<>())
         );
@@ -69,7 +73,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
              */
             log.info("用户登录成功，生成token={}", token);
             // 登录成功后，返回token到header里面
-            response.addHeader("Authorization", token);
+            response.addHeader("X-Token", token);
             // 设置用户信息及token到body里面
             Map<String, Object> resultMap = new HashMap();
             resultMap.put("username",auth.getName());
@@ -93,5 +97,24 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
         ResponseJson<Void> result = ResponseJson.error(exception.getMessage(), null);
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(JSON.toJSONString(result));
+    }
+
+    private ThreadLocal<Map<String,String>> threadLocal = new ThreadLocal<>();
+    /**
+     * 获取body参数  body中的参数只能获取一次
+     */
+    private Map<String,String> getBodyParams(HttpServletRequest request){
+        Map<String,String> bodyParams =  threadLocal.get();
+        if(bodyParams==null) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            try (InputStream is = request.getInputStream()) {
+                bodyParams = objectMapper.readValue(is, Map.class);
+            } catch (IOException ignored) {}
+            if(bodyParams==null) {
+                bodyParams = new HashMap<>();
+            }
+            threadLocal.set(bodyParams);
+        }
+        return bodyParams;
     }
 }
