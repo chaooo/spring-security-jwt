@@ -1,50 +1,59 @@
 <template>
   <el-card style="margin-bottom:20px;">
     <div slot="header" class="clearfix">
-      <span>About me</span>
+      <span>个人资料</span>
     </div>
 
     <div class="user-profile">
       <div class="box-center">
         <pan-thumb :image="user.avatar" :height="'100px'" :width="'100px'" :hoverable="false">
           <div>Hello</div>
-          {{ user.role }}
+          {{ user.username }}
         </pan-thumb>
       </div>
       <div class="box-center">
-        <div class="user-name text-center">{{ user.name }}</div>
-        <div class="user-role text-center text-muted">{{ user.role | uppercaseFirst }}</div>
+        <div class="user-name text-center">{{ user.username }}</div>
       </div>
     </div>
 
     <div class="user-bio">
       <div class="user-education user-bio-section">
-        <div class="user-bio-section-header"><svg-icon icon-class="education" /><span>Education</span></div>
+        <div class="user-bio-section-header">
+          <span>角色</span>
+        </div>
         <div class="user-bio-section-body">
           <div class="text-muted">
-            JS in Computer Science from the University of Technology
+            {{ user.roleName | uppercaseFirst }}
           </div>
         </div>
       </div>
-
-      <div class="user-skills user-bio-section">
-        <div class="user-bio-section-header"><svg-icon icon-class="skill" /><span>Skills</span></div>
+      <div class="user-education user-bio-section">
+        <div class="user-bio-section-header">
+          <span>角色描述</span>
+        </div>
         <div class="user-bio-section-body">
-          <div class="progress-item">
-            <span>Vue</span>
-            <el-progress :percentage="70" />
+          <div class="text-muted">
+            {{ user.roleDesc }}
           </div>
-          <div class="progress-item">
-            <span>JavaScript</span>
-            <el-progress :percentage="18" />
+        </div>
+      </div>
+      <div class="user-education user-bio-section">
+        <div class="user-bio-section-header">
+          <span>姓名</span>
+        </div>
+        <div class="user-bio-section-body">
+          <div class="text-muted">
+            {{ user.fullName }}
           </div>
-          <div class="progress-item">
-            <span>Css</span>
-            <el-progress :percentage="12" />
-          </div>
-          <div class="progress-item">
-            <span>ESLint</span>
-            <el-progress :percentage="100" status="success" />
+        </div>
+      </div>
+      <div class="user-education user-bio-section">
+        <div class="user-bio-section-header">
+          <span>手机号</span>
+        </div>
+        <div class="user-bio-section-body" phone>
+          <div class="text-muted">
+            {{ user.phone }}
           </div>
         </div>
       </div>
@@ -62,10 +71,12 @@ export default {
       type: Object,
       default: () => {
         return {
-          name: '',
-          email: '',
-          avatar: '',
-          role: ''
+          username: '',
+          roleName: '',
+          roleDesc: '',
+          fullName: '',
+          phone: '',
+          avatar: ''
         }
       }
     }

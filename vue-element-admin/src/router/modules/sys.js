@@ -29,14 +29,14 @@ const sysRouter = {
           hidden: true,
           component: () => import('@/views/sys/menus/form.vue'),
           name: 'SysMenuEdit',
-          meta: { title: '编辑菜单' }
+          meta: { title: '编辑菜单', noCache: true }
         },
         {
           path: 'add',
           hidden: true,
           component: () => import('@/views/sys/menus/form.vue'),
           name: 'SysMenuEdit',
-          meta: { title: '添加菜单' }
+          meta: { title: '添加菜单', noCache: true }
         }
       ]
     },
@@ -59,14 +59,14 @@ const sysRouter = {
           hidden: true,
           component: () => import('@/views/sys/roles/form.vue'),
           name: 'SysRoleEdit',
-          meta: { title: '编辑角色' }
+          meta: { title: '编辑角色', noCache: true }
         },
         {
           path: 'add',
           hidden: true,
           component: () => import('@/views/sys/roles/form.vue'),
           name: 'SysRoleEdit',
-          meta: { title: '添加角色' }
+          meta: { title: '添加角色', noCache: true }
         }
       ]
     },
@@ -89,14 +89,14 @@ const sysRouter = {
           hidden: true,
           component: () => import('@/views/sys/users/form.vue'),
           name: 'SysUserEdit',
-          meta: { title: '添加用户' }
+          meta: { title: '添加用户', noCache: true }
         },
         {
           path: 'edit',
           hidden: true,
           component: () => import('@/views/sys/users/form.vue'),
           name: 'SysUserEdit',
-          meta: { title: '编辑用户' }
+          meta: { title: '编辑用户', noCache: true }
         }
       ]
     },

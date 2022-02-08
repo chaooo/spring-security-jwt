@@ -1,14 +1,10 @@
-package com.caimei365.manager.service.sys.impl;
+package com.example.jwt.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.caimei365.manager.dao.SystemDao;
-import com.caimei365.manager.entity.PaginationVo;
-import com.caimei365.manager.entity.ResponseJson;
-import com.caimei365.manager.entity.sys.SysMenu;
-import com.caimei365.manager.entity.sys.SysMenuTree;
-import com.caimei365.manager.entity.sys.SysPermission;
-import com.caimei365.manager.service.sys.SysMenuService;
+import com.example.jwt.dao.SystemDao;
+import com.example.jwt.entity.*;
+import com.example.jwt.service.SysMenuService;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -206,7 +202,7 @@ public class SysMenuServiceImpl implements SysMenuService {
      * @param jsonStr 按钮权限JSON串
      */
     private ResponseJson<Void> parsePermissionJson(Integer menuId, String jsonStr) {
-        // 文章列表JSON数据解析
+        // 按钮权限JSON数据解析
         JSONArray permissionJson = null;
         List<SysPermission> permissionList = new ArrayList<>();
         try {
@@ -227,8 +223,8 @@ public class SysMenuServiceImpl implements SysMenuService {
                 permissionList.add(item);
             }
         } catch (Exception e) {
-            log.error("文章列表JSON数据解析异常try-catch:", e);
-            return ResponseJson.error("文章列表JSON数据解析异常！", null);
+            log.error("按钮权限JSON数据解析异常try-catch:", e);
+            return ResponseJson.error("按钮权限JSON数据解析异常！", null);
         }
         List<Integer> dbPermissionIds = systemDao.getPermissionIds(menuId);
         List<Integer> permissionIds = new ArrayList<>();

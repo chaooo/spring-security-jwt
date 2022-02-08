@@ -1,10 +1,10 @@
-package com.caimei365.manager.controller.sys;
+package com.example.jwt.controller;
 
-import com.caimei365.manager.entity.PaginationVo;
-import com.caimei365.manager.entity.ResponseJson;
-import com.caimei365.manager.entity.sys.SysMenu;
-import com.caimei365.manager.entity.sys.SysMenuTree;
-import com.caimei365.manager.service.sys.SysMenuService;
+import com.example.jwt.entity.PaginationVo;
+import com.example.jwt.entity.ResponseJson;
+import com.example.jwt.entity.SysMenu;
+import com.example.jwt.entity.SysMenuTree;
+import com.example.jwt.service.SysMenuService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;

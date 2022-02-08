@@ -5,7 +5,7 @@
       <el-select v-model="listQuery.status" style="width: 140px" class="filter-item" @change="handleFilter">
         <el-option v-for="item in statusOptions" :key="item.key" :label="item.label" :value="item.key" />
       </el-select>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
+      <el-button v-if="checkPermission('sys:menu:edit')" class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
         添加菜单
       </el-button>
     </div>
@@ -13,10 +13,10 @@
       <el-table-column label="序号" align="center" width="50">
         <template slot-scope="scope">{{ scope.$index + 1 }}</template>
       </el-table-column>
-      <el-table-column label="菜单ID" align="center" width="100">
+      <el-table-column label="菜单ID" align="center">
         <template slot-scope="{row}">{{ row.id }}</template>
       </el-table-column>
-      <el-table-column label="菜单名称" width="150" align="center">
+      <el-table-column label="菜单名称" align="center">
         <template slot-scope="{row}">{{ row.title }}</template>
       </el-table-column>
       <el-table-column label="路由名称" align="center">
@@ -40,17 +40,15 @@
       </el-table-column>
       <el-table-column label="设置" width="250" align="center">
         <template slot-scope="{row}">
-          <el-button plain size="mini" :disabled="row.childCount | disableNextLevel" @click="handleShowNextLevel(row)">查看子菜单
-          </el-button>
-          <el-button plain size="mini" @click="handleCreateNextLevel(row)">添加子菜单
-          </el-button>
+          <el-button plain size="mini" :disabled="row.childCount | disableNextLevel" @click="handleShowNextLevel(row)">查看子菜单</el-button>
+          <el-button v-if="checkPermission('sys:menu:edit')" plain size="mini" @click="handleCreateNextLevel(row)">添加子菜单</el-button>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="150" align="center">
         <template slot-scope="{row}">
-          <el-button size="mini" type="primary" @click="handleUpdate(row)">编辑
+          <el-button v-if="checkPermission('sys:menu:edit')" size="mini" type="primary" @click="handleUpdate(row)">编辑
           </el-button>
-          <el-button size="mini" type="danger" @click="handleDelete(row)">删除
+          <el-button v-permission="'sys:menu:del'" size="mini" type="danger" @click="handleDelete(row)">删除
           </el-button>
         </template>
       </el-table-column>
@@ -62,23 +60,16 @@
 </template>
 
 <script>
-import { fetchList, deleteMenu, updateSelective } from '@/api/menu'
+import { fetchList, deleteMenu, updateSelective } from '@/api/sys/menu'
 import Pagination from '@/components/Pagination'
-
+import checkPermission from '@/utils/permission' // 权限判断函数
+// 当然你也可以为了方便使用，将它注册到全局
+import permission from '@/directive/permission/index.js' // 权限判断指令
 export default {
-  name: 'MenuList',
+  name: 'SysMenuList',
+  directives: { permission },
   components: { Pagination },
   filters: {
-    iconFilter(value) {
-      if (!value) {
-        return ''
-      }
-      if (value.substr(0, 7) === 'el-icon') {
-        return '<i class="' + value + '" />'
-      } else {
-        return '<svg-icon :icon-class="' + value + '" />'
-      }
-    },
     disableNextLevel(value) {
       if (value === 0) {
         return true
@@ -90,7 +81,7 @@ export default {
   data() {
     return {
       tableKey: 0,
-      list: null,
+      list: [],
       total: 5,
       listLoading: true,
       parentTitle: '',
@@ -118,6 +109,7 @@ export default {
     this.getList()
   },
   methods: {
+    checkPermission,
     isElementIcon(value) {
       return value && value.substr(0, 7) === 'el-icon'
     },
@@ -148,7 +140,10 @@ export default {
       })
     },
     goBack() {
-      this.$router.push({ path: '/sys/menus/list' })
+      // 调用全局挂载的方法,关闭当前标签页
+      this.$store.dispatch('tagsView/delView', this.$route)
+      // 返回上一步路由，返回上一个标签页
+      this.$router.go(-1)
     },
     handleCreate() {
       this.$router.push({ path: '/sys/menus/add', query: { parentId: this.listQuery.parentId, title: this.parentTitle }})

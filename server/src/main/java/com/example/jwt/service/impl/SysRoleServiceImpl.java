@@ -1,11 +1,11 @@
-package com.caimei365.manager.service.sys.impl;
+package com.example.jwt.service.impl;
 
-import com.caimei365.manager.dao.SystemDao;
-import com.caimei365.manager.entity.PaginationVo;
-import com.caimei365.manager.entity.ResponseJson;
-import com.caimei365.manager.entity.sys.SysRole;
-import com.caimei365.manager.service.sys.SysRoleService;
-import com.caimei365.manager.utils.CommonUtil;
+import com.example.jwt.dao.SystemDao;
+import com.example.jwt.entity.PaginationVo;
+import com.example.jwt.entity.ResponseJson;
+import com.example.jwt.entity.SysRole;
+import com.example.jwt.service.SysRoleService;
+import com.example.jwt.util.CommonUtil;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

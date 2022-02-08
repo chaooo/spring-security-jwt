@@ -37,11 +37,11 @@
 </template>
 
 <script>
-import { fetchList, deleteRole } from '@/api/role'
+import { fetchList, deleteRole } from '@/api/sys/role'
 import Pagination from '@/components/Pagination'
 
 export default {
-  name: 'RoleList',
+  name: 'SysRoleList',
   components: { Pagination },
   data() {
     return {

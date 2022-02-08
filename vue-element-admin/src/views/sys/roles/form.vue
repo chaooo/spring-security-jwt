@@ -10,11 +10,12 @@
           <el-input v-model="role.roleDesc" maxlength="20" />
         </el-form-item>
         <el-form-item label="角色授权：">
-          <el-tree ref="tree" :data="menuTree" node-key="id" :props="menuProps" show-checkbox default-expand-all check-strictly="true" @check-change="handleTreeChange" />
+          <el-tree ref="tree" :data="menuTree" node-key="id" :props="menuProps" show-checkbox default-expand-all check-strictly />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit('roleFrom')">提交</el-button>
-          <el-button v-if="!isEdit" @click="resetForm('roleFrom')">重置</el-button>
+          <el-button v-if="!isEdit" type="info" @click="resetForm('roleFrom')">重置</el-button>
+          <el-button @click="goBack">返回</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -22,8 +23,8 @@
 </template>
 
 <script>
-import { getRole, updateRole, createRole } from '@/api/role'
-import { sysMenuTree } from '@/api/menu'
+import { getRole, updateRole, createRole } from '@/api/sys/role'
+import { sysMenuTree } from '@/api/sys/menu'
 
 const defaultRole = {
   id: '',
@@ -32,7 +33,7 @@ const defaultRole = {
   menuIds: ''
 }
 export default {
-  name: 'RolesForm',
+  name: 'SysRoleEdit',
   data() {
     return {
       role: Object.assign({}, defaultRole),
@@ -59,7 +60,10 @@ export default {
   },
   methods: {
     goBack() {
-      window.history.go(-1)
+      // 调用全局挂载的方法,关闭当前标签页
+      this.$store.dispatch('tagsView/delView', this.$route)
+      // 返回上一步路由，返回上一个标签页
+      this.$router.go(-1)
     },
     getFormData() {
       if (this.$route.query.id) {
@@ -112,6 +116,7 @@ export default {
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
+            const self = this
             this.getCheckedNodes()
             if (this.isEdit) {
               updateRole(this.$route.query.id, this.role).then(response => {
@@ -120,7 +125,7 @@ export default {
                   type: 'success',
                   duration: 1000
                 })
-                this.$router.back()
+                self.goBack()
               })
             } else {
               createRole(this.role).then(response => {
@@ -131,7 +136,7 @@ export default {
                   type: 'success',
                   duration: 1000
                 })
-                this.$router.back()
+                self.goBack()
               })
             }
           })

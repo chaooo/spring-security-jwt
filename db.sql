@@ -5,14 +5,15 @@ CREATE TABLE `sys_user` (
   `username` VARCHAR(255) UNIQUE NOT NULL COMMENT '用户名',
   `password` VARCHAR(255) NOT NULL COMMENT '密码',
   `avatar` VARCHAR(255) DEFAULT 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif' COMMENT '头像',
-  `fullName` VARCHAR(100) DEFAULT NULL COMMENT '姓名',
-  `phone` INT(20) DEFAULT NULL COMMENT '电话',
+  `fullName` VARCHAR(100) NOT NULL COMMENT '姓名',
+  `phone` varchar(20) NOT NULL COMMENT '电话',
   `login_flag` CHAR(1) NOT NULL DEFAULT '0' COMMENT '是否阻止登录：0否，其他是',
   `create_time` DATETIME DEFAULT NULL COMMENT '创建时间',
   `update_time` DATETIME DEFAULT NULL COMMENT '更新时间',
   `del_flag` CHAR(1) NOT NULL DEFAULT '0' COMMENT '删除标记：0未删，其他删除',
   PRIMARY KEY (`id`)
-) ENGINE=INNODB DEFAULT CHARSET=utf8 COMMENT='系统用户表';
+) ENGINE=INNODB DEFAULT CHARSET=UTF8MB4 COMMENT='系统用户表';
+
 -- 系统角色表
 DROP TABLE IF EXISTS `sys_role`;
 CREATE TABLE `sys_role` (
@@ -23,7 +24,8 @@ CREATE TABLE `sys_role` (
   `update_time` DATETIME DEFAULT NULL COMMENT '更新时间',
   `del_flag` CHAR(1) NOT NULL DEFAULT '0' COMMENT '删除标记：0未删，其他删除',
   PRIMARY KEY (`id`)
-) ENGINE=INNODB DEFAULT CHARSET=utf8 COMMENT='系统角色表';
+) ENGINE=INNODB DEFAULT CHARSET=UTF8MB4 COMMENT='系统角色表';
+
 -- 系统菜单表
 DROP TABLE IF EXISTS `sys_menu`;
 CREATE TABLE `sys_menu` (
@@ -34,28 +36,50 @@ CREATE TABLE `sys_menu` (
   `parent_id` BIGINT NOT NULL DEFAULT '0' COMMENT '父级菜单Id',
   `hidden` CHAR(1) NOT NULL DEFAULT '0' COMMENT '隐藏状态：0显示，1隐藏',
   `status` CHAR(1) NOT NULL DEFAULT '0' COMMENT '状态：0启用，1停用',
-  `sort` INT(10) NOT NULL DEFAULT 0 COMMENT '排序',
+  `sort` INT NOT NULL DEFAULT 0 COMMENT '排序',
   `create_time` DATETIME DEFAULT NULL COMMENT '创建时间',
   `update_time` DATETIME DEFAULT NULL COMMENT '更新时间',
   `del_flag` CHAR(1) NOT NULL DEFAULT '0' COMMENT '删除标记：0未删，其他删除',
   PRIMARY KEY (`id`)
-) ENGINE=INNODB DEFAULT CHARSET=utf8 COMMENT='系统菜单表';
+) ENGINE=INNODB DEFAULT CHARSET=UTF8MB4 COMMENT='系统菜单表';
+
+-- 系统权限表
+ DROP TABLE IF EXISTS `sys_permission`;
+ CREATE TABLE `sys_permission` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `menu_id` BIGINT NOT NULL COMMENT '菜单ID',
+  `name` VARCHAR(100) DEFAULT NULL COMMENT '权限标识',
+  `title` VARCHAR(100) NOT NULL COMMENT '权限名称',
+  PRIMARY KEY (`id`)
+ ) ENGINE=INNODB DEFAULT CHARSET=UTF8MB4 COMMENT='系统权限表';
+
+ -- 权限&角色 关联表
+DROP TABLE IF EXISTS `sys_role_permission`;
+CREATE TABLE `sys_role_permission` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `role_id` BIGINT DEFAULT NULL COMMENT '角色ID',
+  `permission_id` BIGINT DEFAULT NULL COMMENT '权限ID',
+  PRIMARY KEY (`id`)
+) ENGINE=INNODB DEFAULT CHARSET=UTF8MB4 COMMENT='系统角色权限关联表';
+
 -- 用户&角色 关联表
 DROP TABLE IF EXISTS `sys_role_user`;
 CREATE TABLE `sys_role_user` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
-  `role_id` VARCHAR(50) DEFAULT NULL COMMENT '角色ID',
-  `user_id` VARCHAR(255) DEFAULT NULL COMMENT '用户ID',
+  `role_id` BIGINT DEFAULT NULL COMMENT '角色ID',
+  `user_id` BIGINT DEFAULT NULL COMMENT '用户ID',
   PRIMARY KEY (`id`)
-) ENGINE=INNODB DEFAULT CHARSET=utf8 COMMENT='系统用户角色关联表';
+) ENGINE=INNODB DEFAULT CHARSET=UTF8MB4 COMMENT='系统用户角色关联表';
+
 -- 菜单&角色 关联表
 DROP TABLE IF EXISTS `sys_role_menu`;
 CREATE TABLE `sys_role_menu` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
-  `role_id` VARCHAR(50) DEFAULT NULL COMMENT '角色ID',
-  `menu_id` VARCHAR(255) DEFAULT NULL COMMENT '菜单ID',
+  `role_id` BIGINT DEFAULT NULL COMMENT '角色ID',
+  `menu_id` BIGINT DEFAULT NULL COMMENT '菜单ID',
   PRIMARY KEY (`id`)
-) ENGINE=INNODB DEFAULT CHARSET=utf8 COMMENT='系统用户角色关联表';
+) ENGINE=INNODB DEFAULT CHARSET=UTF8MB4 COMMENT='系统角色菜单关联表';
+
 -- 初始数据
 INSERT INTO `sys_user`(`id`,`username`,`password`,`create_time`) VALUES (1,'admin','$2a$10$QmDp1600wURZ.Dn2utkfXO4UTM3gdV42qVjMa81o3GMyW.IdfeEWm',NOW());
 INSERT INTO `sys_role`(`id`,`role_name`,`role_desc`,`create_time`) VALUES (1,'admin','管理员',NOW());

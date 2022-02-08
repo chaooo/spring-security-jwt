@@ -2,13 +2,13 @@
 
 import Layout from '@/layout'
 
-const wechatRouter = {
-  path: '/wechat',
+const otherRouter = {
+  path: '/other',
   component: Layout,
-  redirect: '/wechat/icons',
+  redirect: '/other/icons',
   alwaysShow: true, // will always show the root menu
-  name: 'WeChat', // name必须和后台配置一致，不然匹配不到
-  meta: { title: '微信后台', icon: 'el-icon-s-tools' },
+  name: 'Other', // name必须和后台配置一致，不然匹配不到
+  meta: { title: '其他菜单', icon: 'el-icon-s-tools' },
   children: [
     {
       path: 'icons',
@@ -18,4 +18,4 @@ const wechatRouter = {
     }
   ]
 }
-export default wechatRouter
+export default otherRouter

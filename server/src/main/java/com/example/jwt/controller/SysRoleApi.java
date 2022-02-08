@@ -1,9 +1,9 @@
-package com.caimei365.manager.controller.sys;
+package com.example.jwt.controller;
 
-import com.caimei365.manager.entity.PaginationVo;
-import com.caimei365.manager.entity.ResponseJson;
-import com.caimei365.manager.entity.sys.SysRole;
-import com.caimei365.manager.service.sys.SysRoleService;
+import com.example.jwt.entity.PaginationVo;
+import com.example.jwt.entity.ResponseJson;
+import com.example.jwt.entity.SysRole;
+import com.example.jwt.service.SysRoleService;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 

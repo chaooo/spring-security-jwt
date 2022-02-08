@@ -4,6 +4,9 @@
     <el-page-header :content="isEdit?'编辑用户':'添加用户'" @back="goBack" />
     <el-card class="form-container" shadow="never">
       <el-form ref="sysUserForm" :model="sysUser" :rules="rules" label-width="150px">
+        <el-form-item label="用户头像">
+          <single-upload v-model="sysUser.avatar" />
+        </el-form-item>
         <el-form-item label="登录名：" prop="username">
           <el-input v-model="sysUser.username" />
         </el-form-item>
@@ -27,11 +30,10 @@
             <el-checkbox v-for="item in roleSelect" :key="item.id" :label="item.id" class="littleMarginLeft">{{ item.roleDesc }}</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
-        <el-form-item label="用户头像">
-          <single-upload v-model="sysUser.avatar" />
-        </el-form-item>
         <el-form-item>
-          <el-button type="primary" size="medium" @click="onSubmit('sysUserForm')">保存</el-button>
+          <el-button type="primary" @click="onSubmit('sysUserForm')">保存</el-button>
+          <el-button v-if="!isEdit" type="info" @click="resetForm('roleFrom')">重置</el-button>
+          <el-button @click="goBack">返回</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -39,8 +41,8 @@
 </template>
 <script>
 import SingleUpload from '@/components/Upload/singleUpload'
-import { getUser, updateUser, createUser } from '@/api/user'
-import { fetchList as fetchRoleList } from '@/api/role'
+import { getUser, updateUser, createUser } from '@/api/sys/user'
+import { fetchList as fetchRoleList } from '@/api/sys/role'
 
 const defaultSysUser = {
   id: 0,
@@ -48,12 +50,12 @@ const defaultSysUser = {
   password: '',
   fullName: '',
   phone: '',
-  avatar: '',
+  avatar: 'https://img.caimei365.com/group1/M00/03/ED/rB-lGGHpCyKAGi-aAAAYvvHB_HE522.gif',
   roleIds: '',
   loginFlag: 0
 }
 export default {
-  name: 'SysUsersForm',
+  name: 'SysUserEdit',
   components: { SingleUpload },
   filters: {},
   data() {
@@ -127,6 +129,7 @@ export default {
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
+            const self = this
             if (this.isEdit) {
               updateUser(this.$route.query.id, this.sysUser).then(response => {
                 this.$message({
@@ -134,7 +137,7 @@ export default {
                   type: 'success',
                   duration: 1000
                 })
-                this.$router.back()
+                self.goBack()
               })
             } else {
               createUser(this.sysUser).then(response => {
@@ -145,6 +148,7 @@ export default {
                   type: 'success',
                   duration: 1000
                 })
+                self.goBack()
               })
             }
           })
@@ -173,7 +177,10 @@ export default {
       ]
     },
     goBack() {
-      window.history.go(-1)
+      // 调用全局挂载的方法,关闭当前标签页
+      this.$store.dispatch('tagsView/delView', this.$route)
+      // 返回上一步路由，返回上一个标签页
+      this.$router.go(-1)
     }
   }
 }

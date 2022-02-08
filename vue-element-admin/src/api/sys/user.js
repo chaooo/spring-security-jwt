@@ -59,3 +59,19 @@ export function deleteUser(id) {
     method: 'post'
   })
 }
+
+export function updateProfile(data) {
+  return request({
+    url: '/sys/user/update/profile',
+    method: 'post',
+    data: data
+  })
+}
+
+export function updatePassword(data) {
+  return request({
+    url: '/sys/user/update/password',
+    method: 'post',
+    data: data
+  })
+}

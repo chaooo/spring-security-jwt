@@ -1,6 +1,6 @@
 package com.example.jwt.config.security;
 
-import com.example.jwt.dao.SysUserDao;
+import com.example.jwt.dao.SystemDao;
 import com.example.jwt.entity.SysUser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -23,18 +23,18 @@ import java.util.List;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
     @Resource
-    private SysUserDao sysUserDao;
+    private SystemDao systemDao;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        SysUser user = sysUserDao.findByUsername(username);
+        SysUser user = systemDao.findByUsername(username);
         if(user == null){
             throw new UsernameNotFoundException("用户" + username + "不存在!");
         }
         // 获取用户角色列表
-        List<String> roleList = sysUserDao.getRoleListByUserId(user.getId());
+        List<String> roleNames = systemDao.getRoleNamesByUserId(user.getId());
         // 设置权限和角色
         ArrayList<GrantedAuthority> authorities = new ArrayList<>();
-        for (String role : roleList) {
+        for (String role : roleNames) {
             if (StringUtils.hasLength(role)){
                 authorities.add( new GrantedAuthorityImpl(role));
             }
@@ -42,3 +42,4 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return new User(user.getUsername(), user.getPassword(), authorities);
     }
 }
+

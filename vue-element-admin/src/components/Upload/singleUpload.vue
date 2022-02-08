@@ -1,8 +1,8 @@
 <template>
   <div>
-    <el-upload :action="useOss?ossUploadUrl:minioUploadUrl" :data="useOss?dataObj:null" list-type="picture" :multiple="false" :show-file-list="showFileList" :file-list="fileList" :before-upload="beforeUpload" :on-remove="handleRemove" :on-success="handleUploadSuccess" :on-preview="handlePreview">
+    <el-upload :action="uploadUrl" list-type="picture" :multiple="false" :show-file-list="showFileList" :file-list="fileList" :before-upload="beforeUpload" :on-remove="handleRemove" :on-success="handleUploadSuccess" :on-preview="handlePreview">
       <el-button size="small" type="primary">点击上传</el-button>
-      <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过10MB</div>
+      <div slot="tip" class="el-upload__tip">只能上传jpg/png/gif文件，且不超过1MB</div>
     </el-upload>
     <el-dialog :visible.sync="dialogVisible">
       <img width="100%" :src="fileList[0].url" alt="">
@@ -20,19 +20,8 @@ export default {
   },
   data() {
     return {
-      dataObj: {
-        policy: '',
-        signature: '',
-        key: '',
-        ossaccessKeyId: '',
-        dir: '',
-        host: ''
-        // callback:'',
-      },
       dialogVisible: false,
-      useOss: true, // 使用oss->true;使用MinIO->false
-      ossUploadUrl: 'http://mallservice-oss.oss-cn-shenzhen.aliyuncs.com',
-      minioUploadUrl: 'http://a318n51549.qicp.vip/minio/upload'
+      uploadUrl: process.env.VUE_APP_CORE_API + '/tools/image/upload/multi'
     }
   },
   computed: {
@@ -72,38 +61,20 @@ export default {
       this.dialogVisible = true
     },
     beforeUpload(file) {
-      const _self = this
-      if (!this.useOss) {
-        // 不使用oss不需要获取策略
-        return true
+      const isJPG = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/gif'
+      const isLt1M = file.size / 1024 / 1024 < 1
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!')
       }
-      return new Promise((resolve, reject) => {
-        // eslint-disable-next-line no-undef
-        policy()
-          .then(response => {
-            _self.dataObj.policy = response.data.policy
-            _self.dataObj.signature = response.data.signature
-            _self.dataObj.ossaccessKeyId = response.data.accessKeyId
-            _self.dataObj.key = response.data.dir + '/${filename}'
-            _self.dataObj.dir = response.data.dir
-            _self.dataObj.host = response.data.host
-            // _self.dataObj.callback = response.data.callback;
-            resolve(true)
-          })
-          .catch(err => {
-            console.log(err)
-            reject(false)
-          })
-      })
+      if (!isLt1M) {
+        this.$message.error('上传头像图片大小不能超过 1MB!')
+      }
+      return isJPG && isLt1M
     },
     handleUploadSuccess(res, file) {
       this.showFileList = true
       this.fileList.pop()
-      let url = this.dataObj.host + '/' + this.dataObj.dir + '/' + file.name
-      if (!this.useOss) {
-        // 不使用oss直接获取图片路径
-        url = res.data.url
-      }
+      const url = res.data
       this.fileList.push({ name: file.name, url: url })
       this.emitInput(this.fileList[0].url)
     }

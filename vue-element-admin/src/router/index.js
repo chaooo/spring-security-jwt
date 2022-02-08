@@ -8,7 +8,7 @@ import Layout from '@/layout'
 
 /* Router Modules */
 import sysRouter from './modules/sys'
-import wechatRouter from './modules/wechat'
+import otherRouter from './modules/other'
 // import tableRouter from './modules/table'
 // import nestedRouter from './modules/nested'
 
@@ -40,6 +40,19 @@ import wechatRouter from './modules/wechat'
  */
 export const constantRoutes = [
   {
+    path: '/',
+    component: Layout,
+    redirect: '/dashboard',
+    children: [
+      {
+        path: 'dashboard',
+        component: () => import('@/views/dashboard/index'),
+        name: 'Dashboard',
+        meta: { title: '后台管理', icon: 'dashboard', affix: true }
+      }
+    ]
+  },
+  {
     path: '/redirect',
     component: Layout,
     hidden: true,
@@ -52,31 +65,8 @@ export const constantRoutes = [
   },
   {
     path: '/login',
-    component: () => import('@/views/login/index'),
+    component: () => import('@/views/sys/login/index'),
     hidden: true
-  },
-  {
-    path: '/404',
-    component: () => import('@/views/error-page/404'),
-    hidden: true
-  },
-  {
-    path: '/401',
-    component: () => import('@/views/error-page/401'),
-    hidden: true
-  },
-  {
-    path: '/',
-    component: Layout,
-    redirect: '/dashboard',
-    children: [
-      {
-        path: 'dashboard',
-        component: () => import('@/views/dashboard/index'),
-        name: 'Dashboard',
-        meta: { title: '采美后台', icon: 'dashboard', affix: true }
-      }
-    ]
   },
   {
     path: '/profile',
@@ -86,7 +76,7 @@ export const constantRoutes = [
     children: [
       {
         path: 'index',
-        component: () => import('@/views/profile/index'),
+        component: () => import('@/views/sys/profile/index'),
         name: 'Profile',
         meta: { title: '个人中心', icon: 'user', noCache: true }
       }
@@ -100,7 +90,7 @@ export const constantRoutes = [
  */
 export const asyncRoutes = [
   sysRouter,
-  wechatRouter
+  otherRouter
   /** when your routing map is too long, you can split it into small modules **/
   // componentsRouter,
   // chartsRouter,
@@ -119,10 +109,20 @@ export const afterRoutes = [
     component: Layout,
     children: [
       {
-        path: 'https://www.caimei365.com/',
-        meta: { title: '采美365', icon: 'link' }
+        path: 'https://my.oschina.net/chaoo',
+        meta: { title: '开发者博客', icon: 'link' }
       }
     ]
+  },
+  {
+    path: '/404',
+    component: () => import('@/views/sys/error/404'),
+    hidden: true
+  },
+  {
+    path: '/401',
+    component: () => import('@/views/sys/error/401'),
+    hidden: true
   },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }

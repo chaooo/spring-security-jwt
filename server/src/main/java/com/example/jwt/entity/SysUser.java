@@ -65,9 +65,17 @@ public class SysUser {
      */
     private List<String> roles;
     /**
+     * 角色描述，用" "隔开
+     */
+    private String roleDesc;
+    /**
      * 可访问菜单集合
      */
     private List<SysMenu> menus;
+    /**
+     * 指令权限集合
+     */
+    List<String> permissions;
 
     private static final long serialVersionUID = 1L;
 }

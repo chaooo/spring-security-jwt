@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.jwt.dao.SysUserDao">
+<mapper namespace="com.example.jwt.dao.SystemDao">
     <select id="findByUsername" resultType="com.example.jwt.entity.SysUser">
-        SELECT id,username,PASSWORD,avatar, login_flag AS loginFlag, del_flag AS delFlag
+        SELECT id, username, PASSWORD, avatar, fullName, phone, login_flag AS loginFlag, del_flag AS delFlag
         FROM sys_user WHERE login_flag=0 AND username=#{username}
     </select>
-    <select id="getRoleListByUserId" resultType="java.lang.String">
+    <select id="getUserIdByUsername" resultType="java.lang.Integer">
+        SELECT id FROM sys_user WHERE username=#{username}
+    </select>
+    <select id="getRoleNamesByUserId" resultType="java.lang.String">
         SELECT DISTINCT r.role_name FROM sys_role r
-            LEFT JOIN sys_role_user ru ON r.id = ru.role_id
+                                             LEFT JOIN sys_role_user ru ON r.id = ru.role_id
         WHERE ru.user_id = #{userId}
     </select>
     <select id="getRoleIdsByUserId" resultType="java.lang.String">
         SELECT DISTINCT r.id FROM sys_role r
-            LEFT JOIN sys_role_user ru ON r.id = ru.role_id
+                                      LEFT JOIN sys_role_user ru ON r.id = ru.role_id
         WHERE ru.user_id = #{userId}
-    </select>
-    <select id="getRoleIdsByUsername" resultType="java.lang.Integer">
-        SELECT DISTINCT ru.role_id FROM sys_role_user ru
-        LEFT JOIN sys_user u ON ru.user_id = u.id
-        WHERE u.username=#{username}
     </select>
     <select id="getUserList" resultType="com.example.jwt.entity.SysUser">
         SELECT u.id, u.username, u.avatar, u.fullName, u.phone, u.create_time AS createTime ,u.update_time AS updateTime, login_flag AS loginFlag, del_flag AS delFlag
@@ -32,7 +30,7 @@
         </if>
     </select>
     <select id="getUser" resultType="com.example.jwt.entity.SysUser">
-        SELECT u.id, u.username, u.avatar, u.fullName, u.phone, u.create_time AS createTime ,u.update_time AS updateTime, login_flag AS loginFlag, del_flag AS delFlag
+        SELECT u.id, u.username, u.PASSWORD, u.avatar, u.fullName, u.phone, u.create_time AS createTime ,u.update_time AS updateTime, login_flag AS loginFlag, del_flag AS delFlag
         FROM sys_user u
         WHERE u.id = #{id}
     </select>
@@ -45,7 +43,7 @@
         <if test="password != null and password != ''">
             password=#{password},
         </if>
-        avatar=#{avatar}, fullName=#{fullName}, phone=#{phone}, del_flag=#{delFlag}, update_time=NOW()
+        avatar=#{avatar}, fullName=#{fullName}, phone=#{phone}, login_flag=#{loginFlag}, del_flag=#{delFlag}, update_time=NOW()
         WHERE id = #{id}
     </update>
     <update id="deleteSysUser">
@@ -57,6 +55,12 @@
     <delete id="deleteUserRoleRelation">
         DELETE FROM sys_role_user WHERE user_id = #{userId}
     </delete>
+    <select id="getRoleListByUserId" resultType="com.example.jwt.entity.SysRole">
+        SELECT DISTINCT r.id, r.role_name AS roleName, r.role_desc AS roleDesc, r.create_time AS createTime, r.update_time AS updateTime, del_flag AS delFlag
+        FROM sys_role r
+                 LEFT JOIN sys_role_user ru ON r.id = ru.role_id
+        WHERE ru.user_id = #{userId} AND r.del_flag = 0
+    </select>
     <select id="getRoleList" resultType="com.example.jwt.entity.SysRole">
         SELECT  r.id, r.role_name AS roleName, r.role_desc AS roleDesc, r.create_time AS createTime, r.update_time AS updateTime, del_flag AS delFlag
         FROM sys_role r WHERE r.del_flag = 0
@@ -73,11 +77,14 @@
         INSERT INTO sys_role(role_name, role_desc, create_time)
         VALUES (#{roleName}, #{roleDesc}, NOW())
     </insert>
-    <select id="getMenuIdsByRoleId" resultType="java.lang.String">
+    <select id="getMenuIdsByRoleId" resultType="java.lang.Integer">
         SELECT DISTINCT menu_id FROM sys_role_menu WHERE role_id = #{roleId}
     </select>
     <insert id="insertRoleMenuRelation">
         INSERT INTO sys_role_menu(role_id, menu_id) VALUES(#{roleId}, #{menuId})
+    </insert>
+    <insert id="insertRolePermissionRelation">
+        INSERT INTO sys_role_permission(role_id, permission_id) VALUES(#{roleId}, #{permissionId})
     </insert>
     <delete id="deleteRoleMenuRelation">
         DELETE FROM sys_role_menu WHERE role_id = #{roleId}
@@ -99,8 +106,16 @@
         </foreach>
         ORDER BY m.sort
     </select>
+    <select id="getPermissionNames" resultType="java.lang.String">
+        SELECT p.name FROM sys_permission p
+        LEFT JOIN sys_role_permission rp ON p.id = rp.permission_id
+        WHERE rp.role_id IN
+        <foreach item="roleId" collection="roleIds" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+    </select>
     <select id="getMenuList" resultType="com.example.jwt.entity.SysMenu">
-        SELECT m.id, m.title , m.name, m.icon, m.parent_id AS parentId, m.status, m.hidden, m.sort, m.create_time AS createTime, del_flag AS delFlag,
+        SELECT m.id, m.title, m.name, m.icon, m.parent_id AS parentId, m.status, m.hidden, m.sort, m.create_time AS createTime, del_flag AS delFlag,
         (SELECT COUNT(*) FROM sys_menu WHERE parent_id=m.id) AS childCount
         FROM sys_menu m
         WHERE m.del_flag = 0
@@ -112,8 +127,22 @@
         </if>
         ORDER BY m.sort
     </select>
+    <select id="getMenuTree" resultType="com.example.jwt.entity.SysMenuTree">
+        SELECT m.id, m.name, m.title, m.parent_id AS parentId
+        FROM sys_menu m
+        WHERE m.del_flag = 0
+        <if test="parentId != null or parentId == 0">
+            AND m.parent_id = #{parentId}
+        </if>
+        ORDER BY m.sort
+    </select>
+    <select id="getTreePermissions" resultType="com.example.jwt.entity.SysMenuTree">
+        SELECT CONCAT(p.id, '-', p.menu_id) AS id, p.name, CONCAT('[按钮]', p.title) AS title
+        FROM sys_permission p WHERE p.menu_id = #{menuId}
+    </select>
     <select id="getMenu" resultType="com.example.jwt.entity.SysMenu">
-        SELECT m.id, m.title , m.name, m.icon, m.parent_id AS parentId, m.hidden, m.status, m.sort, m.create_time AS createTime, del_flag AS delFlag
+        SELECT m.id, m.title , m.name, m.icon, m.parent_id AS parentId, m.hidden, m.status, m.sort, m.create_time AS createTime, del_flag AS delFlag,
+               (SELECT COUNT(*) FROM sys_menu WHERE parent_id=m.id) AS childCount
         FROM sys_menu m
         WHERE m.id = #{id}
     </select>
@@ -133,4 +162,22 @@
     <update id="deleteMenu">
         UPDATE sys_menu SET del_flag=1, update_time=NOW() WHERE id = #{id}
     </update>
+    <select id="getPermissionList" resultType="com.example.jwt.entity.SysPermission">
+        SELECT p.id, p.name, p.title AS title, p.menu_id AS menuId
+        FROM sys_permission p WHERE p.menu_id = #{menuId}
+    </select>
+    <select id="getPermissionIds" resultType="java.lang.Integer">
+        SELECT id FROM sys_permission WHERE menu_id = #{menuId}
+    </select>
+    <update id="updatePermission">
+        UPDATE sys_permission SET name=#{name}, title=#{title}, menu_id = #{menuId}
+        WHERE id = #{id}
+    </update>
+    <delete id="deletePermission">
+        DELETE FROM sys_permission WHERE id = #{id}
+    </delete>
+    <insert id="insertPermission" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
+        INSERT INTO sys_permission(title, name, menu_id)
+        VALUES (#{title}, #{name}, #{menuId})
+    </insert>
 </mapper>

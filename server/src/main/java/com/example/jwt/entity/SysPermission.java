@@ -1,4 +1,4 @@
-package com.caimei365.manager.entity.sys;
+package com.example.jwt.entity;
 
 import lombok.Data;
 

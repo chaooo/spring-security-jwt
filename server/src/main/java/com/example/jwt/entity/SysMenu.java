@@ -60,9 +60,19 @@ public class SysMenu {
      */
     private Integer delFlag;
     /**
-     * 排序
+     * 按钮权限
      */
-    private List<SysMenu> subMenus;
+    private List<SysPermission> permissions;
+    /**
+     * 按钮权限JSON数据：[
+     *            { "id":         "ID"
+     *              "title":      "按钮标题",
+     *              "name":       "权限标识",
+     *            },
+     *            {多条数据结构同上}
+     *         ]
+     */
+    private String permissionJson;
 
     private static final long serialVersionUID = 1L;
 }

@@ -23,6 +23,9 @@
       <el-table-column label="手机号" align="center">
         <template slot-scope="scope">{{ scope.row.phone }}</template>
       </el-table-column>
+      <el-table-column label="角色描述" align="center">
+        <template slot-scope="scope">{{ scope.row.roleDesc }}</template>
+      </el-table-column>
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
           <el-button size="mini" type="primary" @click="handleUpdate(scope.row)">修改
@@ -39,11 +42,11 @@
 </template>
 
 <script>
-import { fetchList, deleteUser } from '@/api/user'
+import { fetchList, deleteUser } from '@/api/sys/user'
 import Pagination from '@/components/Pagination'
 
 export default {
-  name: 'UserList',
+  name: 'SysUserList',
   components: { Pagination },
   data() {
     return {
