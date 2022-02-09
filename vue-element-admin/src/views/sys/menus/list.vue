@@ -48,7 +48,7 @@
         <template slot-scope="{row}">
           <el-button v-if="checkPermission('sys:menu:edit')" size="mini" type="primary" @click="handleUpdate(row)">编辑
           </el-button>
-          <el-button v-permission="'sys:menu:del'" size="mini" type="danger" @click="handleDelete(row)">删除
+          <el-button v-if="checkPermission('sys:menu:del')" size="mini" type="danger" @click="handleDelete(row)">删除
           </el-button>
         </template>
       </el-table-column>
@@ -62,12 +62,11 @@
 <script>
 import { fetchList, deleteMenu, updateSelective } from '@/api/sys/menu'
 import Pagination from '@/components/Pagination'
-import checkPermission from '@/utils/permission' // 权限判断函数
-// 当然你也可以为了方便使用，将它注册到全局
-import permission from '@/directive/permission/index.js' // 权限判断指令
+// 权限判断函数
+import checkPermission from '@/utils/permission'
+
 export default {
   name: 'SysMenuList',
-  directives: { permission },
   components: { Pagination },
   filters: {
     disableNextLevel(value) {

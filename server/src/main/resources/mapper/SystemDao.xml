@@ -80,6 +80,11 @@
     <select id="getMenuIdsByRoleId" resultType="java.lang.Integer">
         SELECT DISTINCT menu_id FROM sys_role_menu WHERE role_id = #{roleId}
     </select>
+    <select id="getPermissionMenuIdsByRoleId" resultType="java.lang.String">
+        SELECT DISTINCT CONCAT(p.id, '-', p.menu_id) FROM sys_permission p
+        LEFT JOIN sys_role_permission srp on p.id = srp.permission_id
+        WHERE srp.role_id = #{roleId}
+    </select>
     <insert id="insertRoleMenuRelation">
         INSERT INTO sys_role_menu(role_id, menu_id) VALUES(#{roleId}, #{menuId})
     </insert>
@@ -88,6 +93,9 @@
     </insert>
     <delete id="deleteRoleMenuRelation">
         DELETE FROM sys_role_menu WHERE role_id = #{roleId}
+    </delete>
+    <delete id="deleteRolePermissionRelation">
+        DELETE FROM sys_role_permission WHERE role_id = #{roleId}
     </delete>
     <update id="updateRole">
         UPDATE sys_role SET role_name=#{roleName}, role_desc=#{roleDesc}, del_flag=#{delFlag}, update_time=NOW()

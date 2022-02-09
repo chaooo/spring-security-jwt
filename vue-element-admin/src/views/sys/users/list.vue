@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
+      <el-button v-permission="'sys:user:edit'" class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
         添加用户
       </el-button>
     </div>
@@ -28,10 +28,8 @@
       </el-table-column>
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
-          <el-button size="mini" type="primary" @click="handleUpdate(scope.row)">修改
-          </el-button>
-          <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除
-          </el-button>
+          <el-button v-permission="'sys:user:edit'" size="mini" type="primary" @click="handleUpdate(scope.row)">修改</el-button>
+          <el-button v-permission="'sys:user:del'" size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -44,9 +42,12 @@
 <script>
 import { fetchList, deleteUser } from '@/api/sys/user'
 import Pagination from '@/components/Pagination'
+// 权限判断指令
+import permission from '@/directive/permission/index.js'
 
 export default {
   name: 'SysUserList',
+  directives: { permission },
   components: { Pagination },
   data() {
     return {

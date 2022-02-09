@@ -99,6 +99,10 @@ public interface SystemDao {
      */
     List<Integer> getMenuIdsByRoleId(Integer roleId);
     /**
+     * 根据角色ID获取（权限-菜单）Ids
+     */
+    List<String> getPermissionMenuIdsByRoleId(Integer roleId);
+    /**
      * 保存角色菜单关系
      */
     void insertRoleMenuRelation(Integer roleId, Integer menuId);
@@ -110,6 +114,10 @@ public interface SystemDao {
      * 删除原有角色菜单关联
      */
     void deleteRoleMenuRelation(Integer roleId);
+    /**
+     * 删除原有角色权限关联
+     */
+    void deleteRolePermissionRelation(Integer roleId);
 
     /**
      * 获取菜单列表

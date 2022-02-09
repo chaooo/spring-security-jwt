@@ -76,7 +76,7 @@ export default {
           if (response.data.menuIds) {
             const keys = []
             response.data.menuIds.split(',').forEach(element => {
-              keys.push(element * 1)
+              keys.push(element)
             })
             console.log(keys)
             this.$refs.tree.setCheckedKeys(keys)

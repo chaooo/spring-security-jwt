@@ -52,7 +52,13 @@ public class SysRoleServiceImpl implements SysRoleService {
             // 根据角色ID获取菜单Ids
             List<Integer> menuIdList = systemDao.getMenuIdsByRoleId(id);
             String menuIds = CommonUtil.idListToString(menuIdList, ",");
-            sysRole.setMenuIds(menuIds);
+            // 根据角色ID获取（权限-菜单）Ids
+            List<String> permissionIdList = systemDao.getPermissionMenuIdsByRoleId(id);
+            StringBuilder ids = new StringBuilder(menuIds);
+            for (String permissionId : permissionIdList) {
+                ids.append(",").append(permissionId);
+            }
+            sysRole.setMenuIds(ids.toString());
         }
         return ResponseJson.success(sysRole);
     }
@@ -113,6 +119,8 @@ public class SysRoleServiceImpl implements SysRoleService {
     public ResponseJson<Void> deleteRole(Integer id) {
         // 删除角色菜单关联
         systemDao.deleteRoleMenuRelation(id);
+        // 删除原有角色权限关联
+        systemDao.deleteRolePermissionRelation(id);
         // 删除角色
         systemDao.deleteRole(id);
         return ResponseJson.success();
@@ -136,6 +144,10 @@ public class SysRoleServiceImpl implements SysRoleService {
      */
     private void saveRoleMenuRelation(Integer roleId, String menuIds) {
         if (StringUtils.hasLength(menuIds)) {
+            // 删除原有角色菜单关联
+            systemDao.deleteRoleMenuRelation(roleId);
+            // 删除原有角色权限关联
+            systemDao.deleteRolePermissionRelation(roleId);
             // 设置角色菜单
             String[] split = menuIds.split(",");
             for (String s : split) {
