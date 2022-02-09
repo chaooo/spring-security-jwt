@@ -166,12 +166,12 @@ public class SysMenuServiceImpl implements SysMenuService {
         // 根据路由名称查询菜单
         SysMenu dbMenu = systemDao.getMenuByName(menu.getName());
         if (null == dbMenu) {
-            systemDao.insertMenu(menu);
             // 按钮权限JSON数据解析
             ResponseJson<Void> error = parsePermissionJson(menu.getId(), menu.getPermissionJson());
             if (error != null) {
                 return error;
             }
+            systemDao.insertMenu(menu);
         } else if (!Integer.valueOf(0).equals(dbMenu.getDelFlag())){
             // 更新已删除菜单
             return updateMenu(dbMenu.getId(), menu);
@@ -205,26 +205,28 @@ public class SysMenuServiceImpl implements SysMenuService {
         // 按钮权限JSON数据解析
         JSONArray permissionJson = null;
         List<SysPermission> permissionList = new ArrayList<>();
-        try {
-            permissionJson = parseArray(jsonStr);
-            if (null == permissionJson || permissionJson.isEmpty()) {
-                return ResponseJson.error("按钮权限JSON数据异常！", null);
+        if (StringUtils.hasLength(jsonStr) && !"[]".equals(jsonStr)) {
+            try {
+                permissionJson = parseArray(jsonStr);
+                if (null != permissionJson && !permissionJson.isEmpty()) {
+                    return ResponseJson.error("按钮权限JSON数据异常！", null);
+                }
+                for (Object permissionObject : permissionJson) {
+                    JSONObject detail = (JSONObject) permissionObject;
+                    Integer permissionId = (Integer) detail.get("id");
+                    String permissionName = (String) detail.get("name");
+                    String permissionTitle = (String) detail.get("title");
+                    SysPermission item = new SysPermission();
+                    item.setId(permissionId);
+                    item.setMenuId(menuId);
+                    item.setName(permissionName);
+                    item.setTitle(permissionTitle);
+                    permissionList.add(item);
+                }
+            } catch (Exception e) {
+                log.error("按钮权限JSON数据解析异常try-catch:", e);
+                return ResponseJson.error("按钮权限JSON数据解析异常！", null);
             }
-            for (Object permissionObject : permissionJson) {
-                JSONObject detail = (JSONObject) permissionObject;
-                Integer permissionId = (Integer) detail.get("id");
-                String permissionName = (String) detail.get("name");
-                String permissionTitle = (String) detail.get("title");
-                SysPermission item = new SysPermission();
-                item.setId(permissionId);
-                item.setMenuId(menuId);
-                item.setName(permissionName);
-                item.setTitle(permissionTitle);
-                permissionList.add(item);
-            }
-        } catch (Exception e) {
-            log.error("按钮权限JSON数据解析异常try-catch:", e);
-            return ResponseJson.error("按钮权限JSON数据解析异常！", null);
         }
         List<Integer> dbPermissionIds = systemDao.getPermissionIds(menuId);
         List<Integer> permissionIds = new ArrayList<>();
@@ -243,7 +245,4 @@ public class SysMenuServiceImpl implements SysMenuService {
         }
         return null;
     }
-
-
-
 }
