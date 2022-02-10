@@ -208,8 +208,8 @@ public class SysMenuServiceImpl implements SysMenuService {
         if (StringUtils.hasLength(jsonStr) && !"[]".equals(jsonStr)) {
             try {
                 permissionJson = parseArray(jsonStr);
-                if (null != permissionJson && !permissionJson.isEmpty()) {
-                    return ResponseJson.error("按钮权限JSON数据异常！", null);
+                if (null == permissionJson || permissionJson.isEmpty()) {
+                    return ResponseJson.error("按钮权限JSON数据为空！", null);
                 }
                 for (Object permissionObject : permissionJson) {
                     JSONObject detail = (JSONObject) permissionObject;
