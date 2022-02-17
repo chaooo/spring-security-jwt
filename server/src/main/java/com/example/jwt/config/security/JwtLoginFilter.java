@@ -45,10 +45,10 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
      */
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-//        String username = request.getParameter("username");
-//        String password = request.getParameter("password");
-        String username = this.getBodyParams(request).get(SPRING_SECURITY_FORM_USERNAME_KEY);
-        String password = this.getBodyParams(request).get(SPRING_SECURITY_FORM_PASSWORD_KEY);
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+//        String username = this.getBodyParams(request).get(SPRING_SECURITY_FORM_USERNAME_KEY);
+//        String password = this.getBodyParams(request).get(SPRING_SECURITY_FORM_PASSWORD_KEY);
         return authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password, new ArrayList<>())
         );
@@ -99,22 +99,22 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
         response.getWriter().write(JSON.toJSONString(result));
     }
 
-    private ThreadLocal<Map<String,String>> threadLocal = new ThreadLocal<>();
-    /**
-     * 获取body参数  body中的参数只能获取一次
-     */
-    private Map<String,String> getBodyParams(HttpServletRequest request){
-        Map<String,String> bodyParams =  threadLocal.get();
-        if(bodyParams==null) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            try (InputStream is = request.getInputStream()) {
-                bodyParams = objectMapper.readValue(is, Map.class);
-            } catch (IOException ignored) {}
-            if(bodyParams==null) {
-                bodyParams = new HashMap<>();
-            }
-            threadLocal.set(bodyParams);
-        }
-        return bodyParams;
-    }
+//    private ThreadLocal<Map<String,String>> threadLocal = new ThreadLocal<>();
+//    /**
+//     * 获取body参数  body中的参数只能获取一次
+//     */
+//    private Map<String,String> getBodyParams(HttpServletRequest request){
+//        Map<String,String> bodyParams =  threadLocal.get();
+//        if(bodyParams==null) {
+//            ObjectMapper objectMapper = new ObjectMapper();
+//            try (InputStream is = request.getInputStream()) {
+//                bodyParams = objectMapper.readValue(is, Map.class);
+//            } catch (IOException ignored) {}
+//            if(bodyParams==null) {
+//                bodyParams = new HashMap<>();
+//            }
+//            threadLocal.set(bodyParams);
+//        }
+//        return bodyParams;
+//    }
 }
